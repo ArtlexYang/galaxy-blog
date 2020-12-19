@@ -1,0 +1,30 @@
+# Spring数据库链接配置
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/galaxy?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: root
+    password: root@123
+
+# Mybatis-Plus扫描路径
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**Mapper.xml
+
+# Tomcat服务端口
+server:
+  port: 8081
+
+# Shiro-Redis配置
+shiro-redis:
+  enabled: true
+  redis-manager:
+    host: 127.0.0.1:6379
+
+# JWT配置 galaxy\src\main\java\pers\artlex\utils\JwtUtil.java
+artlex:
+  jwt:
+    # 加密密钥
+    secret: f4e2e52034348f86b67cde581c0f9eb5
+    # token有效时间，半天，单位秒
+    expire: 43200
+    header: Authorization

@@ -1,49 +1,225 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.3.4.RELEASE</version>
-		<relativePath/> <!-- lookup parent from repository -->
-	</parent>
-	<groupId>pers.artlex</groupId>
-	<artifactId>galaxy</artifactId>
-	<version>0.0.1-20201016-SNAPSHOT</version>
-	<name>galaxy</name>
-	<description>Software development version</description>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<properties>
-		<java.version>1.8</java.version>
-	</properties>
+    <groupId>pers.artlex</groupId>
+    <artifactId>galaxy</artifactId>
+    <version>0.1.0-2020.12.15-快速博客框架版</version>
+    <name>galaxy</name>
+    <description>Software development version</description>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter</artifactId>
-		</dependency>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.3.4.RELEASE</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
 
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>org.junit.vintage</groupId>
-					<artifactId>junit-vintage-engine</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-	</dependencies>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <!--        <skipTests>true</skipTests>-->
+        <!--        <docker.host>http://192.168.3.101:2375</docker.host>-->
+        <!--        <docker.maven.plugin.version>1.2.2</docker.maven.plugin.version>-->
+        <!--        <java.version>1.11</java.version>-->
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-		</plugins>
-	</build>
+        <!--        <spring-cloud.version>Hoxton.SR5</spring-cloud.version>-->
+        <!--        <spring-cloud-alibaba.version>2.2.0.RELEASE</spring-cloud-alibaba.version>-->
+
+        <mysql-connector.version>8.0.20</mysql-connector.version>
+        <mybatis-plus.version>3.3.2</mybatis-plus.version>
+        <mybatis-plus-generator.version>3.3.2</mybatis-plus-generator.version>
+        <!--        <pagehelper-starter.version>1.3.0</pagehelper-starter.version>-->
+        <!--        <pagehelper.version>5.2.0</pagehelper.version>-->
+        <!--        <druid.version>1.1.23</druid.version>-->
+
+        <jjwt.version>0.9.1</jjwt.version>
+        <shiro-redis.version>3.2.1</shiro-redis.version>
+        <hutool.version>5.4.7</hutool.version>
+        <lombok.version>1.18.12</lombok.version>
+
+    </properties>
+
+    <dependencies>
+        <!--******************** SpringBoot通用依赖模块 ********************-->
+        <!-- SpringBoot启动器 （0.0.1引入） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <!-- SpringBoot测试启动器 （0.0.1引入） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.junit.vintage</groupId>
+                    <artifactId>junit-vintage-engine</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- 开始器使用SpringMVC构造符合RESTful接口的web项目（默认嵌入容器: tomcat） （0.0.1引入） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <!-- SpringBoot热加载重启插件 （0.0.1引入） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
+        <!-- 页面模板引擎 （0.0.1引入） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-freemarker</artifactId>
+        </dependency>
+        <!-- 实体验证 （0.0.1引入） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <!-- 监控和管理应用 -->
+        <!--        <dependency>-->
+        <!--            <groupId>org.springframework.boot</groupId>-->
+        <!--            <artifactId>spring-boot-starter-actuator</artifactId>-->
+        <!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.springframework.boot</groupId>-->
+        <!--            <artifactId>spring-boot-starter-aop</artifactId>-->
+        <!--        </dependency>-->
+
+        <!--******************** 微服务相关模块 ********************-->
+        <!-- Spring Cloud 相关依赖 -->
+        <!--        <dependency>-->
+        <!--            <groupId>org.springframework.cloud</groupId>-->
+        <!--            <artifactId>spring-cloud-dependencies</artifactId>-->
+        <!--            <version>${spring-cloud.version}</version>-->
+        <!--            <type>pom</type>-->
+        <!--            <scope>import</scope>-->
+        <!--        </dependency>-->
+        <!-- Spring Cloud Alibaba 相关依赖 -->
+        <!--        <dependency>-->
+        <!--            <groupId>com.alibaba.cloud</groupId>-->
+        <!--            <artifactId>spring-cloud-alibaba-dependencies</artifactId>-->
+        <!--            <version>${spring-cloud-alibaba.version}</version>-->
+        <!--            <type>pom</type>-->
+        <!--            <scope>import</scope>-->
+        <!--        </dependency>-->
+
+        <!--******************** 数据库相关模块 ********************-->
+        <!-- Mysql数据库驱动 （0.0.1引入） -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>${mysql-connector.version}</version>
+            <!--                <scope>runtime</scope>-->
+        </dependency>
+        <!-- 集成druid连接池 -->
+        <!--        <dependency>-->
+        <!--            <groupId>com.alibaba</groupId>-->
+        <!--            <artifactId>druid-spring-boot-starter</artifactId>-->
+        <!--            <version>${druid.version}</version>-->
+        <!--        </dependency>-->
+        <!-- MyBatis-plus （0.0.1引入） -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus</artifactId>
+            <version>${mybatis-plus.version}</version>
+        </dependency>
+        <!-- MyBatis-plus启动器 （0.0.1引入） -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <version>${mybatis-plus.version}</version>
+        </dependency>
+        <!-- MyBatis-plus代码生成器 （0.0.1引入） -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-generator</artifactId>
+            <version>${mybatis-plus-generator.version}</version>
+        </dependency>
+        <!-- MyBatis分页插件 -->
+        <!--        <dependency>-->
+        <!--            <groupId>com.github.pagehelper</groupId>-->
+        <!--            <artifactId>pagehelper</artifactId>-->
+        <!--            <version>${pagehelper.version}</version>-->
+        <!--        </dependency>-->
+        <!-- MyBatis分页插件starter -->
+        <!--        <dependency>-->
+        <!--            <groupId>com.github.pagehelper</groupId>-->
+        <!--            <artifactId>pagehelper-spring-boot-starter</artifactId>-->
+        <!--            <version>${pagehelper-starter.version}</version>-->
+        <!--        </dependency>-->
+
+        <!--******************** 安全验证相关模块 ********************-->
+        <!-- jwt （0.0.1引入） -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>${jjwt.version}</version>
+        </dependency>
+        <!-- shiro+redis整合包 （0.0.1引入） -->
+        <!-- 记得改为3.3.1 -->
+        <dependency>
+            <groupId>org.crazycake</groupId>
+            <artifactId>shiro-redis-spring-boot-starter</artifactId>
+            <version>${shiro-redis.version}</version>
+        </dependency>
+
+        <!--******************** 其他功能模块 ********************-->
+        <!-- hutool工具类 （0.0.1引入） -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>${hutool.version}</version>
+        </dependency>
+        <!-- 简化代码，不建议使用 （0.0.1引入） -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <!-- 由于使用的是JDK11，有些JDK8的包没有，需要自己导入 -->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <version>2.3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-core</artifactId>
+            <version>2.3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+    </dependencies>
+
+    <!-- 如果dependencyManagement里面的依赖找不到，就把下面dependencys标签内内容放到上面的dependencies标签里下载，再放回来 -->
+    <!--    <dependencyManagement>-->
+    <!--        <dependencies>-->
+    <!--        </dependencies>-->
+    <!--    </dependencyManagement>-->
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

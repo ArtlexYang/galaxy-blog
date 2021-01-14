@@ -76,9 +76,12 @@ public class GalaxyBlogController {
 
         // id存在进入编辑，id不存在进入创建
         if(galaxyBlog.getId() != null) {
+
             temp = galaxyBlogService.getById(galaxyBlog.getId());
+            System.out.println(temp.getUserId());
+            System.out.println(ShiroUtil.getProfile().getId());
             // 只能编辑自己的文章
-            Assert.isTrue(temp.getId().longValue() == ShiroUtil.getProfile().getId().longValue(), "没有权限编辑");
+            Assert.isTrue(temp.getUserId().longValue() == ShiroUtil.getProfile().getId().longValue(), "没有权限编辑");
         } else {
             temp = new GalaxyBlog();
             temp.setUserId(ShiroUtil.getProfile().getId());

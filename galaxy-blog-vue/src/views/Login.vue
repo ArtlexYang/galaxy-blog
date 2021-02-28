@@ -2,7 +2,7 @@
   <div>
     <el-container>
       <el-header>
-        <img class="mlogo" src="https://www.markerhub.com/dist/images/logo/markerhub-logo.png" alt="">
+        <img class="mlogo" src="https://profile.csdnimg.cn/5/A/6/2_weixin_42159233" alt="">
       </el-header>
 
       <el-main>
@@ -38,7 +38,7 @@ export default {
       rules: {
         username: [
           {required: true, message: '请输入用户名', trigger: 'blur'},
-          {min: 3, max: 15, message: '长度在 3 到 15 个字符', trigger: 'blur'}
+          {min: 1, max: 20, message: '长度在 1 到 20 个字符', trigger: 'blur'}
         ],
         password: [
           {required: true, message: '请选择密码', trigger: 'change'}

@@ -78,7 +78,8 @@ a blog system like galaxy.（in development）<br>
 
 ## Version Updated Record 版本更新记录
 V0.1.0 2020.12.15 实现博客后端基础功能<br>
-V0.2.0 2020.01.12 实现博客前端基础功能<br>
+V0.2.0 2020.01.12 使用Vue实现博客前端基础功能<br>
+V0.3.0 2020.02.28 前端彻底重构重写，从Vue迁移到React（说是迁移其实全都不一样）
 <br>
 
 ## Thanks 感谢

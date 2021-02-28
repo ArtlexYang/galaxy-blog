@@ -43,11 +43,14 @@ public class AccountController {
     public ResponseResult login(@Validated @RequestBody LoginDto loginDto, HttpServletResponse response) {
         // 获取用户
         GalaxyUser galaxyUser = galaxyUserService.getOne(new QueryWrapper<GalaxyUser>().eq("username", loginDto.getUsername()));
-        Assert.notNull(galaxyUser, "用户不存在");
+        if (galaxyUser == null) {
+            return ResponseResult.failure(401, "账号或密码不正确", null);
+        }
+//        Assert.notNull(galaxyUser, "用户不存在");
 
         // 数据库存储明文密码
         if (!galaxyUser.getPassword().equals(loginDto.getPassword())) {
-            return ResponseResult.failure("账号或密码不正确");
+            return ResponseResult.failure(401, "账号或密码不正确", null);
         }
 
         // 数据库存储md5加密密码
@@ -68,6 +71,8 @@ public class AccountController {
                 .put("username", galaxyUser.getUsername())
                 .put("avatar", galaxyUser.getAvatar())
                 .put("email", galaxyUser.getEmail())
+                .put("status", galaxyUser.getStatus())
+                .put("lastLogin", galaxyUser.getLastLogin())
                 .map()
         );
     }

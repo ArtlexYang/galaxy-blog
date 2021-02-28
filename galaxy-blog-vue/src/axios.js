@@ -25,7 +25,7 @@ axios.interceptors.response.use(response => {
       return response
     } else {
       // 弹窗异常信息
-      Element.Message.error('有错误出现', {duration: 3 * 1000})
+      Element.Message.error(res.massage, {duration: 3 * 1000})
       // 直接拒绝往下面返回结果信息
       return Promise.reject(response.data.msg)
     }
@@ -37,6 +37,7 @@ axios.interceptors.response.use(response => {
     }
     // 根据请求状态觉得是否登录或者提示其他
     if (error.response.status === 401) {
+      // 错误移出登录状态
       store.commit("REMOVE_INFO")
       router.push("/login")
       error.message = '请重新登录';

@@ -1,0 +1,39 @@
+.header {
+  min-width: 604;
+}
+
+.logo {
+  width: 39px;
+  height: 39px;
+  margin-left: -20px;
+}
+
+.text {
+  /* top: 16px; */
+  margin-left: 30px;
+  margin-top: -64px;
+}
+
+.menu {
+  margin-left: 140px;
+  /* 选择菜单上移64px */
+  margin-top: -64px;
+}
+.menuNodeLeftLine {
+  border-left: 1px solid rgb(66, 66, 66) !important;
+}
+.menuNodeLeftRightLine {
+  border-left: 1px solid rgb(66, 66, 66) !important;
+  border-right: 1px solid rgb(66, 66, 66) !important;
+}
+
+.search {
+  /* float: right; */
+  position: absolute;
+  padding: 0;
+  border: 0;
+  /* 选择菜单上移48px */
+  margin-top: -48px;
+  left: 1560px;
+  width: 300px;
+}

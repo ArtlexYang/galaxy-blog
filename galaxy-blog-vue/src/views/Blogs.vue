@@ -29,6 +29,8 @@
                      @current-change=page>
       </el-pagination>
 
+      <!-- 回到顶部组件 -->
+      <el-backtop></el-backtop>
     </div>
 
   </div>

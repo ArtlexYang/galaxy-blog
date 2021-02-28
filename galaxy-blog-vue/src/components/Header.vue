@@ -29,7 +29,7 @@
       return {
         user: {
           username: '游客',
-          avatar: 'https://avatar.csdnimg.cn/5/A/6/1_weixin_42159233_1606490691.jpg'
+          avatar: 'https://profile.csdnimg.cn/5/A/6/2_weixin_42159233'
         },
         hasLogin: false
       }
@@ -43,7 +43,8 @@
           }
         }).then(res => {
           _this.$store.commit("REMOVE_INFO")
-          _this.$router.push("/login")
+          _this.user.username = '游客'
+          _this.$router.push("/blogs")
         })
         this.hasLogin = false
       }
@@ -61,14 +62,13 @@
 </script>
 
 <style scoped>
-
   .m-content {
     max-width: 960px;
     margin: 0 auto;
     text-align: center;
   }
+  /* 垂直间距 */
   .maction {
     margin: 10px 0;
   }
-
 </style>

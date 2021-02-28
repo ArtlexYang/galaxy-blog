@@ -16,9 +16,11 @@ public class AccountProfile implements Serializable {
      * username：账户名
      * avatar：头像地址路径
      * email：邮箱
+     * status：用户权限
      */
     private Long id;
     private String username;
     private String avatar;
     private String email;
+    private Integer status;
 }

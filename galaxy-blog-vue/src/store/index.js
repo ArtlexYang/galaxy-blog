@@ -9,6 +9,8 @@ export default new Vuex.Store({
     userInfo: JSON.parse(sessionStorage.getItem("userInfo"))
   },
   mutations: {
+    // 定义setter方法
+
     // localStorage设置token
     SET_TOKEN: (state, token) => {
       state.token = token
@@ -28,7 +30,7 @@ export default new Vuex.Store({
 
   },
   getters: {
-    // get
+    // 定义getter方法
     getUser: state => {
       return state.userInfo
     }

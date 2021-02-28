@@ -23,10 +23,10 @@
         </el-form-item>
       </el-form>
 
+      <!-- 回到顶部组件 -->
+      <el-backtop target=".page-component__scroll .el-scrollbar__wrap"></el-backtop>
+
     </div>
-
-
-
   </div>
 </template>
 

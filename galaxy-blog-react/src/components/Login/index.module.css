@@ -1,0 +1,68 @@
+.container {
+  margin: 0;
+  padding: 0;
+
+  position: absolute;  /* 适应性全屏 */
+  height: 100%;
+  width: 100%;
+  top: 0px;
+  bottom: 0px;
+  
+  background-image: url(../../img/galaxy.jpg);  /* 背景图片，可商用，来源：https://pixabay.com/photos/galaxy-star-infinity-cosmos-dark-3608029/ */
+  background-repeat: no-repeat;  /* 背景图片不重复 */
+  background-size: cover;
+  background-position: 0 -220px;  /* 左右不动 上移220px */
+}
+
+.bigBox {
+  margin: 200px auto;  /* login框下移200px且居中 */
+  padding: 20px 50px;  /* login框内部的距离(内部与输入框和按钮的距离) */
+
+  width: 647px;
+  height: 400px;
+  
+  background-color: #000000be;  /* login框背景颜色和透明度 */
+  border-radius: 10px;  /* 圆角边 */
+  text-align: center;  /* 框内所有内容居中 */
+}
+
+.h1 {
+  margin-top: 20px;
+  
+  color: white;  /* LOGIN字体颜色 */
+  font-size: 4em;  /* LOGIN字体大小 */
+  font-weight: bold;  /* LOGIN字体加粗 */
+}
+
+.inputBox {
+  margin-top: 43px;  /* 输入框顶部与LOGIN标题的间距 */
+}
+
+.inputText {
+  margin-top: -5px;
+  margin-left:  0px !important;
+  padding: 5px 10px;  /* 输入框内的间距 */
+  
+  border: 0;  /* 删除输入框边框 */
+  border-bottom: 1px solid #ffffff90 !important;  /* 输入框白色下划线 */
+  
+  width: 260px;
+  letter-spacing: 5px;  /* 字体间距 */
+  text-align: center;  /* 字体居中 */
+  color: white;  /* 输入字体的颜色 */
+  background-color: #00000000 !important;  /* 输入框透明 */
+}
+
+.remember {
+  color: white;  /* 字体的颜色 */
+}
+
+.loginButton {
+  margin-top: 0px;  /* 按钮顶部与输入框的距离 */
+  width: 150px;
+  height: 30px;
+  color: white;  /* 按钮字体颜色 */
+  border: 0;  /* 删除按钮边框 */
+  border-radius: 20px;  /* 按钮圆角边 */
+  background-image: linear-gradient(to right, #b8cbb8 0%, #b8cbb8 0%, #b465da 0%, #cf6cc9 33%, #ee609c 66%, #ee609c 100%) !important;	/* 按钮颜色 */
+}

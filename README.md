@@ -15,7 +15,6 @@ a blog system like galaxy.（in development）<br>
             <th>technology 技术</th>
             <th>explain 解释</th>
             <th>version 版本</th>
-            <th>use this technical version 使用此技术版本</th>
         </tr>
     </thead>
     <tbody>
@@ -23,28 +22,23 @@ a blog system like galaxy.（in development）<br>
             <td>SpringBoot</td>
             <td>容器，MVC框架</td>
             <td>2.3.4</td>
-            <td>0.0.1-</td>
         </tr>
         <tr>
             <td>MyBatis-Plus</td>
             <td>ORM框架</td>
             <td>3.3.2</td>
-            <td>0.0.1-</td>
         </tr>
         <tr>
             <td>Shiro-Redis</td>
             <td>安全认证融合框架</td>
             <td>3.2.1</td>
-            <td>0.0.1-</td>
         </tr>
         <tr>
             <td></td>
             <td></td>
             <td></td>
-            <td></td>
         </tr>
         <tr>
-            <td></td>
             <td></td>
             <td></td>
             <td></td>
@@ -53,16 +47,13 @@ a blog system like galaxy.（in development）<br>
             <td>Spring Cloud Alibaba</td>
             <td></td>
             <td></td>
-            <td></td>
         </tr>
         <tr>
             <td></td>
             <td></td>
             <td></td>
-            <td></td>
         </tr>
         <tr>
-            <td></td>
             <td></td>
             <td></td>
             <td></td>
@@ -73,21 +64,22 @@ a blog system like galaxy.（in development）<br>
 
 ## Folder Meaning (Subproject Meaning) 文件夹含义（子项目含义）
 - galaxy-blog 博客模块
-- galaxy-blog-vue 博客前端模块
+- galaxy-blog-react 博客前端模块
 <br>
 
 ## Version Updated Record 版本更新记录
-V0.1.0 2020.12.15 实现博客后端基础功能<br>
-V0.2.0 2020.01.12 使用Vue实现博客前端基础功能<br>
-V0.3.0 2020.02.28 前端彻底重构重写，从Vue迁移到React（说是迁移其实全都不一样）
+- V0.1.0 2020.12.15 实现博客后端基础功能
+- V0.2.0 2020.01.12 使用Vue实现博客前端基础功能
+- V0.3.0 2020.02.28 前端彻底重构重写，将前端从Vue迁移到React
 <br>
 
 ## Thanks 感谢
 Markdown Editer Markdown编辑器： <br>
 - Default Editer 默认编辑器： https://github.com/nhn/tui.editor <br>
-- Mathematical Editer 数学编辑器： https://github.com/pandao/editor.md <br>
+- Mathematical Editer 数学编辑器（未使用）： https://github.com/pandao/editor.md <br>
 <br>
 
-Learning Project 学习参考的项目： <br>
+Learning Project 学习参考的项目与课程： <br>
 - V0.1.0-0.2.0 参考博客骨架：https://juejin.cn/post/6844903823966732302
-- 微服务项目：https://github.com/macrozheng/mall
+- V0.3.0 React学习教程：https://www.bilibili.com/video/BV1wy4y1D7JT
+- 微服务项目参考：https://github.com/macrozheng/mall<br>

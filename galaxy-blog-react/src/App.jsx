@@ -19,10 +19,10 @@ import BlogEdit from "./components/Admin/Blog/BlogEdit"
 export default class App extends Component {
   constructor(props) {
     super(props)
-
+    
     // 防止在本组件或子组件刷新后axios的header清空，进行初始化
     if (sessionStorage.getItem('userToken')!==null)
-    axios.defaults.headers.common['Authorization'] = sessionStorage.getItem('userToken')
+      axios.defaults.headers.common['Authorization'] = sessionStorage.getItem('userToken')
   }
   render() {
     return (

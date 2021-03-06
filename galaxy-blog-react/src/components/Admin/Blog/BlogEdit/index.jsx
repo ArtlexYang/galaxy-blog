@@ -5,7 +5,6 @@ import { Form, Input, Button, Modal, message } from 'antd'
 import store from '../../../../redux/store'
 
 import Editor from '../Editor'
-import styles from './index.module.css'
 
 /**
  * 本组件获取Blog信息交由Editor进行渲染
@@ -191,6 +190,8 @@ export default class BlogEdit extends Component {
     console.log(this.state)
     await axios.post('http://localhost:8081/blog/edit', this.blog).then(
       res => {
+        // console.log(res.data.data.id)
+        this.setState({blog: {...this.state.blog, id: res.data.data.id, userId: res.data.data.userId}})
         message.success("保存成功！");
       },
       err => {
@@ -204,7 +205,7 @@ export default class BlogEdit extends Component {
 
   render() {
     return (
-      <div className={styles.container}>
+      <div>
         {/* 判断博客内容有没有加载完成，完成了显示内容，未完成显示加载动画 */}
         {(this.props.match.params.blogId < 0 || this.state.blog.title!=="")
         ? <>
@@ -219,7 +220,7 @@ export default class BlogEdit extends Component {
                 }
               }}
             >
-              <Form className={styles.inputBox}
+              <Form
                     layout="vertical"
                     colon="false"
                     name="basic"
@@ -254,7 +255,8 @@ export default class BlogEdit extends Component {
                       (event) => {
                         this.setState({blog: {...this.state.blog, title: event.target.value}})
                       }
-                        } />
+                    }
+                  />
                 </Form.Item>
 
                 <Form.Item>
@@ -273,13 +275,12 @@ export default class BlogEdit extends Component {
                   <Button type="primary" htmlType="submit" onClick={() => this.saveBlog(BLOGSTATUS.Public)}>
                     保存并公开发布
                   </Button>
-                  <font> &nbsp;
-                    当前博客状态为：{(this.state.blog.status===1
-                                    ? "私有发布"
-                                    : (this.state.blog.status===2
-                                      ? "公开发布"
-                                      : "未发布草稿")
-                                    )}
+                  <font> &nbsp; 当前博客状态为：
+                    {(this.state.blog.status===1  ? "私有发布" 
+                                                  : (this.state.blog.status===2
+                                                    ? "公开发布"
+                                                    : "未发布草稿")
+                    )}
                   </font>
                 </Form.Item>
 

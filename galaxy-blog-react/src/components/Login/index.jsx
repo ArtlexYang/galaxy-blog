@@ -5,7 +5,6 @@ import store from '../../redux/store'
 import {
   addUserToken,
   addUserInfo,
-  delUser
 } from '../../redux/actions/login.js'
 
 // axios进行后端请求
@@ -41,9 +40,6 @@ class Login extends Component {
   }
   addUserInfo = (info)=>{
     store.dispatch(addUserInfo(info))
-  }
-  delUser = ()=>{
-    store.dispatch(delUser())
   }
 
   onFinish = async (values) => {
@@ -82,7 +78,7 @@ class Login extends Component {
           // 弹窗提示
           message.success('登录成功！')
           // 跳转到管理页面
-          this.props.history.push('/admin');
+          this.props.history.replace('/admin');
 
         } else {  // 服务器通信正常，但是返回登录失败
           // 弹窗提示

@@ -4,4 +4,4 @@
 // 用户认证后，保存后端返回的token
 export const ADDUSERTOKEN = 'addUserToken'
 export const ADDUSERINFO = 'addUserInfo'
-export const DELUSER = 'delUserToken'
+export const DELUSER = 'delUser'

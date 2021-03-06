@@ -9,12 +9,19 @@ const initState = {
   "userToken":
     sessionStorage.getItem('userToken')!==null
     ? sessionStorage.getItem('userToken')
-    : "",
+    : null,
   "userInfo":
     sessionStorage.getItem('userInfo')!==null
     ? JSON.parse(sessionStorage.getItem('userInfo'))
-    : ""
+    : null,
 }
+
+// 空信息
+const cleanState = {
+  "userToken": null,
+  "userInfo": null,
+}
+
 export default function countReducer(preState=initState, action){
   // 根据type决定如何加工数据
   // ！！！多用户下注意xss攻击！！！
@@ -26,8 +33,10 @@ export default function countReducer(preState=initState, action){
       sessionStorage.setItem('userInfo', JSON.stringify(action.data));
       return {...preState, ...{userInfo: action.data}}
     case DELUSER:  // 清空用户所有信息
-      return initState
-    default:  // 清空用户所有信息
-      return initState
+      sessionStorage.removeItem('userToken');
+      sessionStorage.removeItem('userInfo');
+      return cleanState
+    default:  // 初始化的时候调用此兜底
+      return preState
  }
 }

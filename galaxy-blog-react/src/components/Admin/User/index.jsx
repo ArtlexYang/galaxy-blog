@@ -18,7 +18,11 @@ export default class User extends Component {
       },
       err => {
         // 弹窗提示
-        message.error('服务器连接失败，请稍后重试！')
+        message.error(err.response.data.message);
+        // token失效了退出登录
+        if (err.response.data.message==="token已失效，请重新登录") {
+          store.dispatch(delUser())
+        }
       }
     );
   }

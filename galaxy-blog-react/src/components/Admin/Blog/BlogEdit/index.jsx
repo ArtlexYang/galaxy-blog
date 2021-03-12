@@ -59,7 +59,7 @@ const ModalForm = ({ visible, onCancel, description }) => {
  * BlogEdit组件主体
  */
 // 枚举常量
-const BLOGSTATUS = {Draft:0, Private:1, Public:2};
+const BLOGSTATUS = { Draft: 0, Public: 1 };
 export default class BlogEdit extends Component {
   constructor(props) {
     super(props)
@@ -68,28 +68,13 @@ export default class BlogEdit extends Component {
     if (store.getState().login.userInfo!==null && store.getState().login.userInfo.status >= 0) {
       // 初始化，防止setState失效
       this.state = {
-        blog: {
-          id: null,
-          userId: null, 
-          title: "", 
-          description: "", 
-          content: "", 
-          status: 0}, 
+        blog: null,  // 不能初始化为{}，因为会自动包含其他属性，导致加载顺序错误
         visible: false,  // 摘要会话框是否弹出
         editor: null,  // 编辑器实例
         isNew: (props.match.params.blogId >= 0) ? false : true  // 是否是新建博客
       }
       // 获取编辑器组件的引用（此时还没有绑定组件，所以是null）
       this.editorRef = React.createRef()
-
-      // 不会引起页面修改且需要及时保存的数据，不建议放在state中
-      this.blog = {
-        id: null,
-        userId: null, 
-        title: "", 
-        description: "", 
-        content: "", 
-        status: 0}
 
     } else {  // 没有权限跳到登陆页面
       message.error('没有权限编辑此博客！请登录');
@@ -112,47 +97,31 @@ export default class BlogEdit extends Component {
       .get('http://localhost:8081/blog/' + blogId)
       .then(
         res => {
-          // this.blog = res.data.data
-          const blogData = res.data.data
-          this.setState({
-            blog: {
-              id: blogData.id,
-              title: blogData.title,
-              userId: blogData.userId,
-              description: blogData.description,
-              content: blogData.content,
-              status: blogData.status
-            }
-          })
+          this.setState({ blog: res.data.data })
 
           // description初始化（新建博客不用走这步）
           if (this.state.blog.description===null || this.state.blog.description==="") {
-            if (this.state.blog.content!==null) {
-              // this.state.blog.description = this.state.blog.content.substring(0,200)
-              //                                               .replace("@[TOC", "")  // 替换markdown的自动标题"@[TOC]()"
-              //                                               .replace(/](.*)/i, "")  // 替换markdown的自动标题"@[TOC]()"
-              //                                               .replace(/#*/g, "")  // 替换markdown中的等级符"#"
-              //                                               .replace(/<.*>/g, "")  // 替换html标签
-              //                                               .replace(/&.*;/g, "")  // 替换"&nbsp;"、"&emsp;"等
-              //                                               .replace(/-*/g, "")  // 替换markdown的分割线"---"等
+            if (this.state.blog.contentMarkdown!==null) {
               this.setState({
                 blog: {
                   ...this.state.blog,
-                  description: this.state.blog.content.substring(0,200)
-                    .replace("@[TOC", "")  // 替换markdown的自动标题"@[TOC]()"
-                    .replace(/](.*)/i, "")  // 替换markdown的自动标题"@[TOC]()"
-                    .replace(/#*/g, "")  // 替换markdown中的等级符"#"
-                    .replace(/<.*>/g, "")  // 替换html标签
-                    .replace(/&.*;/g, "")  // 替换"&nbsp;"、"&emsp;"等
-                    .replace(/-*/g, "")  // 替换markdown的分割线"---"等
+                  description: 
+                    this.state.blog.contentMarkdown
+                      .substring(0,200)
+                      .replace("@[TOC", "")  // 替换markdown的自动标题"@[TOC]()"
+                      .replace(/](.*)/i, "")  // 替换markdown的自动标题"@[TOC]()"
+                      .replace(/#*/g, "")  // 替换markdown中的等级符"#"
+                      .replace(/<.*>/g, "")  // 替换html标签
+                      .replace(/&.*;/g, "")  // 替换"&nbsp;"、"&emsp;"等
+                      .replace(/-*/g, "")  // 替换markdown的分割线"---"等
+                      .replace("*", "")  // 替换markdown的"*"
               }})
             }
           }
-          // console.log(this.state)
           // 获取编辑器实例，对已存在的博客需要在数据获取到后的第一次渲染完，组件绑定了引用才可以
           this.setState({editor: this.editorRef.current.getInstance()})
-          },
-          err => {
+        },
+        err => {
             // 弹窗提示
             message.error('获取博客失败，请重试！');
         }
@@ -169,29 +138,40 @@ export default class BlogEdit extends Component {
     // 使用变量避免setState延迟
     this.blog = this.state.blog
     this.blog.status = status
-    this.setState({blog: {...this.state.blog, status}})
+    this.setState({
+      blog: {
+        ...this.state.blog,
+        status
+      }
+    })
 
-    if (this.props.match.params.blogId < 0) {  // 如果是新建的博客，要设置博客所属的用户id
+    // 如果是新建的博客，要设置博客所属的用户id
+    if (this.props.match.params.blogId < 0) {
       this.blog.userId = JSON.parse(sessionStorage.getItem('userInfo')).id
       this.setState({
         blog: {
           ...this.state.blog, 
-          userId: JSON.parse(sessionStorage.getItem('userInfo')).id,
+          uid: JSON.parse(sessionStorage.getItem('userInfo')).id,
         }})
     }
-    // 保存markdown资源
+
+    // 保存markdown资源和html资源
     const markdown = this.state.editor.getMarkdown()
-    this.blog.content = markdown
+    const html = this.state.editor.getHtml()
+    this.blog.contentMarkdown = markdown
+    this.blog.contentHtml = html
     this.setState({
       blog: {
         ...this.state.blog,
-        content: markdown,},
-      })
-    console.log(this.state)
+        contentMarkdown: markdown,
+        contentHtml: html
+      },
+    })
+
+    // 保存请求
     await axios.post('http://localhost:8081/blog/edit', this.blog).then(
       res => {
-        // console.log(res.data.data.id)
-        this.setState({blog: {...this.state.blog, id: res.data.data.id, userId: res.data.data.userId}})
+        this.setState({blog: {...this.state.blog, id: res.data.data.id, uid: res.data.data.uid}})
         message.success("保存成功！");
       },
       err => {
@@ -199,21 +179,20 @@ export default class BlogEdit extends Component {
       }
     ).catch(
       err => {
-        message.error("服务器错误，保存失败，请稍候重试！");
-      })
+        message.error(err.response.data.message);
+      }
+    )
   }
 
   render() {
     return (
       <div>
         {/* 判断博客内容有没有加载完成，完成了显示内容，未完成显示加载动画 */}
-        {(this.props.match.params.blogId < 0 || this.state.blog.title!=="")
+        {(this.props.match.params.blogId < 0 || this.state.blog!==null)
         ? <>
             <Form.Provider
               // 子表单提交时触发（name:子表单名; values:子表单属性的keys:values; forms:子表单的form对象,包含对象的一些操作）
               onFormFinish={(name, { values, forms }) => {
-                // console.log(values)
-                // console.log(forms)
                 // 直接把子表单的值给state
                 if (name === 'descriptionForm') {
                   this.setState({blog: {...this.state.blog, description: values.description}, visible: false});
@@ -248,7 +227,6 @@ export default class BlogEdit extends Component {
                   ]}
                 >
                   <Input 
-                    // className={styles.inputText} 
                     style={{width: "100%"}}
                     placeholder="请输入标题"
                     onChange={  // 输入框每次更新都执行此方法（保证标题可以正确修改）
@@ -269,24 +247,17 @@ export default class BlogEdit extends Component {
                   <Button type="primary" htmlType="submit" onClick={() => this.saveBlog(BLOGSTATUS.Draft)}>
                     保存为草稿
                   </Button> &nbsp;
-                  <Button type="primary" htmlType="submit" onClick={() => this.saveBlog(BLOGSTATUS.Private)}>
-                    保存并私有发布
-                  </Button> &nbsp;
                   <Button type="primary" htmlType="submit" onClick={() => this.saveBlog(BLOGSTATUS.Public)}>
                     保存并公开发布
                   </Button>
                   <font> &nbsp; 当前博客状态为：
-                    {(this.state.blog.status===1  ? "私有发布" 
-                                                  : (this.state.blog.status===2
-                                                    ? "公开发布"
-                                                    : "未发布草稿")
-                    )}
+                    {( this.state.blog.status===1  ? "公开发布" : "未发布草稿" )}
                   </font>
                 </Form.Item>
 
                 <Form.Item>
                   <Editor
-                      initialValue={this.state.blog.content}
+                      initialValue={this.state.blog.contentMarkdown}
                       ref={this.editorRef}
                     />
                 </Form.Item>

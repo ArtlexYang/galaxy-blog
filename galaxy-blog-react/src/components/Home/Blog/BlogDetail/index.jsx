@@ -14,7 +14,7 @@ export default class GetBolgDetail extends Component {
     super(props)
 
     // 初始化，防止setState失效
-    this.state = {id: null, title: null, userId: null, blogContent: null}
+    this.state = { blog: null }
 
     // 获取编辑器组件的引用
     this.editorRef = React.createRef()
@@ -30,35 +30,30 @@ export default class GetBolgDetail extends Component {
       .then(
         res => {
           const blog = res.data.data
-          this.setState({
-            id: blog.id,
-            title: blog.title,
-            userId: blog.userId,
-            blogContent: blog.content
-          })
+          this.setState({ blog })
       },
       err => {
         // 弹窗提示
-        message.error('获取博客失败，请重试！');
+        message.error(err.response.data.message);
       }
     );
   }
 
   render() {
     return (
-      <div className={styles.container}>
+      <div style={{ margin: '50px 150px', backgroundColor: 'white' }}>
         {/* {(this.state.blogContent!==null) 
         ? <Editor
             initialValue={this.state.blogContent}
             ref={this.editorRef}
           />
         : "博文加载中......"} */}
-      {(this.state.blogContent!==null) 
-        ? <Viewer
-            initialValue={this.state.blogContent}
-            ref={this.editorRef}
-          />
-        : "博文加载中......"}
+      
+        {/* 直接显示翻译好的html文件 */}
+        { ( this.state.blog!==null) 
+          ? <div dangerouslySetInnerHTML={{__html:this.state.blog.contentHtml}}></div>
+          : "博文加载中......"
+        }
       </div>
     )
   }

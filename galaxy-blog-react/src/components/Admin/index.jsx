@@ -6,6 +6,7 @@ import {
   PieChartOutlined,
   FileOutlined,
   BarsOutlined,
+  DeploymentUnitOutlined,
   UserOutlined,
 } from '@ant-design/icons';
 
@@ -14,6 +15,7 @@ import imgURL from '../../img/favicon.ico';
 import Data from './Data';
 import Blog from './Blog';
 import Classification from './Classification';
+import Label from './Label';
 import User from './User';
 
 /**
@@ -87,7 +89,13 @@ export default class Admin extends Component {
               </Link>
             </Menu.Item>
 
-            <Menu.Item key="4" icon={<UserOutlined />}>
+            <Menu.Item key="4" icon={<DeploymentUnitOutlined />}>
+              <Link to="/admin/label">
+                标签管理
+              </Link>
+            </Menu.Item>
+
+            <Menu.Item key="5" icon={<UserOutlined />}>
               <Link to="/admin/user">
                 用户管理
               </Link>
@@ -118,14 +126,14 @@ export default class Admin extends Component {
             <Route path="/admin/data" component={Data}/>
             <Route path="/admin/blog" component={Blog}/>
             <Route path="/admin/classification" component={Classification}/>
+            <Route path="/admin/label" component={Label}/>
             <Route path="/admin/user" component={User}/>
             {/* 所有路由均不匹配 */}
             <Redirect to="/admin/blog"/>
-            
+
             {/* 在文本中居中，美观些 */}
             <Footer style={{ marginTop: '50px', textAlign: 'center', }}>Created by ArtlexKylin</Footer>
           </Content>
-
           
         </Layout>
       </Layout>

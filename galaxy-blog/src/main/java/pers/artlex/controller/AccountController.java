@@ -1,5 +1,7 @@
 package pers.artlex.controller;
 
+import javax.servlet.http.HttpServletResponse;
+
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.crypto.SecureUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -12,17 +14,18 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
 import pers.artlex.common.dto.LoginDto;
 import pers.artlex.common.lang.ResponseResult;
 import pers.artlex.entity.GalaxyUser;
 import pers.artlex.service.GalaxyUserService;
 import pers.artlex.util.JwtUtil;
 
-import javax.servlet.http.HttpServletResponse;
-
 /**
- * @author: ArtlexKylin
- * @date: 2020/12/15 14:38
+ * 前端控制器
+ *
+ * @author ArtlexKylin
+ * @since 2020-12-01
  */
 @RestController
 public class AccountController {
@@ -46,7 +49,6 @@ public class AccountController {
         if (galaxyUser == null) {
             return ResponseResult.failure(401, "账号或密码不正确", null);
         }
-//        Assert.notNull(galaxyUser, "用户不存在");
 
         // 数据库存储明文密码
         if (!galaxyUser.getPassword().equals(loginDto.getPassword())) {
@@ -69,10 +71,15 @@ public class AccountController {
         return ResponseResult.success(MapUtil.builder()
                 .put("id", galaxyUser.getId())
                 .put("username", galaxyUser.getUsername())
+                .put("status", galaxyUser.getStatus())
+                .put("nickname", galaxyUser.getNickname())
                 .put("avatar", galaxyUser.getAvatar())
                 .put("email", galaxyUser.getEmail())
-                .put("status", galaxyUser.getStatus())
+                .put("welcomingSpeech", galaxyUser.getWelcomingSpeech())
+                .put("blogCount",  galaxyUser.getBlogCount())
+                .put("commentCount",  galaxyUser.getCommentCount())
                 .put("lastLogin", galaxyUser.getLastLogin())
+                .put("limitTime", galaxyUser.getLimitTime())
                 .map()
         );
     }

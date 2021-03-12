@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pers.artlex.mapper.GalaxyTagMapper">
+    <select id="getTagStatisticsAll" resultType="java.util.Map">
+        SELECT content, COALESCE(COUNT(DISTINCT t.blog_id), 0) as total
+        FROM galaxy_blog as b, galaxy_tag as t
+        GROUP BY t.content
+        ORDER BY COALESCE(COUNT(DISTINCT t.blog_id), 0) DESC, LENGTH(content)
+    </select>
+    <select id="getTagStatisticsPublic" resultType="java.util.Map">
+        SELECT content, COALESCE(COUNT(DISTINCT t.blog_id), 0) as total
+        FROM galaxy_blog as b, galaxy_tag as t
+        WHERE t.status=1 and b.status=1
+        GROUP BY t.content
+        ORDER BY COALESCE(COUNT(DISTINCT t.blog_id), 0) DESC, LENGTH(content)
+    </select>
+    <select id="getTagStatisticsMyself"  resultType="java.util.Map">
+        SELECT content, COALESCE(COUNT(DISTINCT t.blog_id), 0) as total
+        FROM galaxy_blog as b, galaxy_tag as t
+        WHERE b.user_id=#{userId} and t.user_id=#{userId}
+        GROUP BY t.content
+        ORDER BY COALESCE(COUNT(DISTINCT t.blog_id), 0) DESC, LENGTH(content)
+    </select>
+</mapper>

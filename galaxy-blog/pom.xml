@@ -5,7 +5,7 @@
 
     <groupId>pers.artlex</groupId>
     <artifactId>galaxy</artifactId>
-    <version>0.2.0-快速博客框架版</version>
+    <version>0.3.0-功能填充版</version>
     <name>galaxy</name>
     <description>Software development version</description>
 
@@ -38,17 +38,18 @@
         <shiro-redis.version>3.2.1</shiro-redis.version>
         <hutool.version>5.4.7</hutool.version>
         <lombok.version>1.18.12</lombok.version>
+        <springfox.version>2.9.2</springfox.version>
 
     </properties>
 
     <dependencies>
         <!--******************** SpringBoot通用依赖模块 ********************-->
-        <!-- SpringBoot启动器 （0.0.1引入） -->
+        <!-- SpringBoot启动器 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
-        <!-- SpringBoot测试启动器 （0.0.1引入） -->
+        <!-- SpringBoot测试启动器 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -60,24 +61,24 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!-- 开始器使用SpringMVC构造符合RESTful接口的web项目（默认嵌入容器: tomcat） （0.0.1引入） -->
+        <!-- 开始器使用SpringMVC构造符合RESTful接口的web项目（默认嵌入容器: tomcat） -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-        <!-- SpringBoot热加载重启插件 （0.0.1引入） -->
+        <!-- SpringBoot热加载重启插件 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>
-        <!-- 页面模板引擎 （0.0.1引入） -->
+        <!-- 页面模板引擎 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-freemarker</artifactId>
         </dependency>
-        <!-- 实体验证 （0.0.1引入） -->
+        <!-- 实体验证 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
@@ -111,7 +112,7 @@
         <!--        </dependency>-->
 
         <!--******************** 数据库相关模块 ********************-->
-        <!-- Mysql数据库驱动 （0.0.1引入） -->
+        <!-- Mysql数据库驱动 -->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
@@ -124,19 +125,19 @@
         <!--            <artifactId>druid-spring-boot-starter</artifactId>-->
         <!--            <version>${druid.version}</version>-->
         <!--        </dependency>-->
-        <!-- MyBatis-plus （0.0.1引入） -->
+        <!-- MyBatis-plus -->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus</artifactId>
             <version>${mybatis-plus.version}</version>
         </dependency>
-        <!-- MyBatis-plus启动器 （0.0.1引入） -->
+        <!-- MyBatis-plus启动器 -->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
             <version>${mybatis-plus.version}</version>
         </dependency>
-        <!-- MyBatis-plus代码生成器 （0.0.1引入） -->
+        <!-- MyBatis-plus代码生成器 -->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-generator</artifactId>
@@ -156,13 +157,13 @@
         <!--        </dependency>-->
 
         <!--******************** 安全验证相关模块 ********************-->
-        <!-- jwt （0.0.1引入） -->
+        <!-- jwt -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt</artifactId>
             <version>${jjwt.version}</version>
         </dependency>
-        <!-- shiro+redis整合包 （0.0.1引入） -->
+        <!-- shiro+redis整合包 -->
         <!-- 记得改为3.3.1 -->
         <dependency>
             <groupId>org.crazycake</groupId>
@@ -171,18 +172,29 @@
         </dependency>
 
         <!--******************** 其他功能模块 ********************-->
-        <!-- hutool工具类 （0.0.1引入） -->
+        <!-- hutool工具类 -->
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
             <version>${hutool.version}</version>
         </dependency>
-        <!-- 简化代码，不建议使用 （0.0.1引入） -->
+        <!-- 简化代码，规范开发不建议使用 -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
             <optional>true</optional>
+        </dependency>
+        <!-- swagger RestfulAPI文档生成 -->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>${springfox.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>${springfox.version}</version>
         </dependency>
         <!-- 由于使用的是JDK11，有些JDK8的包没有，需要自己导入 -->
         <dependency>
@@ -205,6 +217,10 @@
             <artifactId>activation</artifactId>
             <version>1.1.1</version>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
     </dependencies>
 
     <!-- 如果dependencyManagement里面的依赖找不到，就把下面dependencys标签内内容放到上面的dependencies标签里下载，再放回来 -->
@@ -218,6 +234,14 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>9</source>
+                    <target>9</target>
+                </configuration>
             </plugin>
         </plugins>
     </build>

@@ -1,5 +1,156 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="pers.artlex.mapper.GalaxyBlogMapper">
+    <select id="getBlogStatisticsAll"  resultType="java.util.Map">
+        SELECT SUM(b.click_count) AS clickCount,
+               SUM(b.like_count) AS likeCount,
+               SUM(collect_count) AS collectCount,
+               SUM(comment_count) AS commentCount
+        FROM galaxy_blog AS b
+    </select>
+    <select id="getBlogStatisticsPublic"  resultType="java.util.Map">
+        SELECT SUM(b.click_count) AS clickCount,
+               SUM(b.like_count) AS likeCount,
+               SUM(collect_count) AS collectCount,
+               SUM(comment_count) AS commentCount
+        FROM galaxy_blog AS b
+        WHERE b.status=1
+    </select>
+    <select id="getBlogStatisticsDraft"  resultType="java.util.Map">
+        SELECT SUM(b.click_count) AS clickCount,
+               SUM(b.like_count) AS likeCount,
+               SUM(collect_count) AS collectCount,
+               SUM(comment_count) AS commentCount
+        FROM galaxy_blog AS b
+        WHERE b.status=0
+    </select>
+    <select id="getBlogStatisticsMyselfAll"  resultType="java.util.Map">
+        SELECT SUM(b.click_count) AS clickCount,
+               SUM(b.like_count) AS likeCount,
+               SUM(collect_count) AS collectCount,
+               SUM(comment_count) AS commentCount
+        FROM galaxy_blog AS b
+        WHERE b.user_id=#{userId}
+    </select>
+    <select id="getBlogStatisticsMyselfPublic"  resultType="java.util.Map">
+        SELECT SUM(b.click_count) AS clickCount,
+               SUM(b.like_count) AS likeCount,
+               SUM(collect_count) AS collectCount,
+               SUM(comment_count) AS commentCount
+        FROM galaxy_blog AS b
+        WHERE b.user_id=#{userId} AND b.status=1
+    </select>
+    <select id="getBlogStatisticsMyselfDraft"  resultType="java.util.Map">
+        SELECT SUM(b.click_count) AS clickCount,
+               SUM(b.like_count) AS likeCount,
+               SUM(collect_count) AS collectCount,
+               SUM(comment_count) AS commentCount
+        FROM galaxy_blog AS b
+        WHERE b.user_id=#{userId} AND b.status=0
+    </select>
 
+    <select id="getTagBlogListPublic"  resultType="java.util.Map">
+        SELECT
+                b.`id`,
+                b.`user_id` AS userId,
+                b.`category_id` AS categoryId,
+                b.`category_content` AS categoryContent,
+                b.`tag`,
+                b.`nickname`,
+                b.`title`,
+                b.`description`,
+                b.`catalog`,
+                b.`content_markdown` AS contentMarkdown,
+                b.`content_html` AS contentHtml,
+                b.`status`,
+                b.`flag`,
+                b.`top`,
+                b.`sort`,
+                b.`is_appreciation` AS isAppreciation,
+                b.`is_license` AS isLicense,
+                b.`is_comment` AS isComment,
+                b.`click_count` AS clickCount,
+                b.`like_count` AS likeCount,
+                b.`collect_count` AS collectCount,
+                b.`comment_count` AS commentCount,
+                b.`last_comment_time` AS lastCommentTime,
+                b.`create_time` AS createTime,
+                b.`update_time`AS updateTime
+        FROM galaxy_blog AS b, galaxy_tag AS t
+        WHERE b.status=1 AND b.user_id=t.user_id AND t.blog_id=b.id AND t.content=#{tagContent}
+        ORDER BY b.create_time DESC
+    </select>
+    <select id="getTagBlogListMyself"  resultType="java.util.Map">
+        SELECT
+                b.`id`,
+                b.`user_id` AS userId,
+                b.`category_id` AS categoryId,
+                b.`category_content` AS categoryContent,
+                b.`tag`,
+                b.`nickname`,
+                b.`title`,
+                b.`description`,
+                b.`catalog`,
+                b.`content_markdown` AS contentMarkdown,
+                b.`content_html` AS contentHtml,
+                b.`status`,
+                b.`flag`,
+                b.`top`,
+                b.`sort`,
+                b.`is_appreciation` AS isAppreciation,
+                b.`is_license` AS isLicense,
+                b.`is_comment` AS isComment,
+                b.`click_count` AS clickCount,
+                b.`like_count` AS likeCount,
+                b.`collect_count` AS collectCount,
+                b.`comment_count` AS commentCount,
+                b.`last_comment_time` AS lastCommentTime,
+                b.`create_time` AS createTime,
+                b.`update_time`AS updateTime
+        FROM galaxy_blog AS b, galaxy_tag AS t
+        WHERE b.status=1 AND b.user_id=t.user_id AND t.blog_id=b.id AND t.content=#{tagContent} AND b.user_id=#{userId}
+        ORDER BY b.create_time DESC
+    </select>
+
+    <select id="statisticsBlogTimeListPublic"  resultType="java.util.Map">
+        SELECT
+                DATE_FORMAT(b.create_time, "%Y-%m") AS time,
+                COUNT(b.id) AS total
+        FROM galaxy_blog AS b
+        WHERE b.status=1
+        GROUP BY DATE_FORMAT(b.create_time, "%Y-%m")
+        ORDER BY DATE_FORMAT(b.create_time, "%Y-%m") DESC
+    </select>
+
+    <select id="getTimeBlogListPublic"  resultType="java.util.Map">
+        SELECT
+                b.`id`,
+                b.`user_id` AS userId,
+                b.`category_id` AS categoryId,
+                b.`category_content` AS categoryContent,
+                b.`tag`,
+                b.`nickname`,
+                b.`title`,
+                b.`description`,
+                b.`catalog`,
+                b.`content_markdown` AS contentMarkdown,
+                b.`content_html` AS contentHtml,
+                b.`status`,
+                b.`flag`,
+                b.`top`,
+                b.`sort`,
+                b.`is_appreciation` AS isAppreciation,
+                b.`is_license` AS isLicense,
+                b.`is_comment` AS isComment,
+                b.`click_count` AS clickCount,
+                b.`like_count` AS likeCount,
+                b.`collect_count` AS collectCount,
+                b.`comment_count` AS commentCount,
+                b.`last_comment_time` AS lastCommentTime,
+                b.`create_time` AS createTime,
+                b.`update_time`AS updateTime
+        FROM galaxy_blog AS b
+        WHERE b.status=1 AND DATE_FORMAT(b.create_time, "%Y-%m")=#{time}
+        ORDER BY B.create_time DESC
+    </select>
 </mapper>

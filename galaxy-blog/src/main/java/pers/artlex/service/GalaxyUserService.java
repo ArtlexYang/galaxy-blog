@@ -4,9 +4,7 @@ import pers.artlex.entity.GalaxyUser;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
- * <p>
- *  服务类
- * </p>
+ * 服务类
  *
  * @author ArtlexKylin
  * @since 2020-12-01

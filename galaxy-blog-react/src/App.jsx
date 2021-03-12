@@ -26,7 +26,7 @@ export default class App extends Component {
   }
   render() {
     return (
-      <div>
+      <div style={{ minHeight: '969px', minWidth: '1800px'}}>
         {/* 路由找到即返回，不再继续查找 */}
         <Switch>
           {/* 注册路由 */}

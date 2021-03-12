@@ -1,0 +1,417 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pers.artlex.mapper.GalaxyCategoryMapper">
+
+    <select id="getCategoryStatisticsAll" resultType="java.util.Map">
+        select c1.content as content, COALESCE(COUNT(DISTINCT c2.blog_id) ,0) as total
+        from galaxy_category as c1
+             left join
+                 (select c.content as content, b.id as blog_id
+                  from galaxy_blog as b, galaxy_category as c
+                  where b.category_id=c.id and b.user_id=c.user_id) as c2
+             on c1.content=c2.content
+        GROUP BY c1.content
+        ORDER BY COALESCE(COUNT(DISTINCT c2.blog_id) ,0) DESC, length(c1.content)
+    </select>
+    <select id="getCategoryStatisticsPublic" resultType="java.util.Map">
+        select c1.content as content, COALESCE(COUNT(DISTINCT c2.blog_id) ,0) as total
+        from galaxy_category as c1
+                     left join
+                     (select c.content as content, b.id as blog_id
+                      from galaxy_blog as b, galaxy_category as c
+                      where b.category_id=c.id and b.user_id=c.user_id and b.status=1) as c2
+                             on c1.content=c2.content
+        where c1.status=1
+        GROUP BY c1.content
+        ORDER BY COALESCE(COUNT(DISTINCT c2.blog_id) ,0) DESC, length(c1.content)
+    </select>
+    <select id="getCategoryStatisticsMyself"  resultType="java.util.Map">
+        select c1.content as content, COALESCE(COUNT(DISTINCT c2.blog_id) ,0) as total
+        from galaxy_category as c1
+                     left join
+                     (select c.content as content, b.id as blog_id
+                      from galaxy_blog as b, galaxy_category as c
+                      where b.category_id=c.id and b.user_id=c.user_id and b.status=1 and b.user_id=#{userId}) as c2
+                             on c1.content=c2.content
+        where c1.user_id=#{userId}
+        GROUP BY c1.content
+        ORDER BY COALESCE(COUNT(DISTINCT c2.blog_id) ,0) DESC, length(c1.content)
+    </select>
+
+    <select id="getCategoryLevelListAll"  resultType="java.util.Map">
+        select
+                c.`id`,
+                c.`user_id` as `userId`,
+                c.`content`,
+                c.`description`,
+                c.`status`,
+                c.`level`,
+                c.`pid`,
+                c.`blog_count` as blogCount,
+                c.`sort`,
+                c.`create_time` as createTime,
+                c.`update_time` as updateTime
+        from galaxy_category as c
+        where c.`level`=#{level}
+        order by c.`sort` DESC, c.`blog_count` DESC, length(c.`content`)
+    </select>
+    <select id="getCategoryLevelListMyself"  resultType="java.util.Map">
+        select
+                c.`id`,
+                c.`user_id` as `userId`,
+                c.`content`,
+                c.`description`,
+                c.`status`,
+                c.`level`,
+                c.`pid`,
+                c.`blog_count` as blogCount,
+                c.`sort`,
+                c.`create_time` as createTime,
+                c.`update_time` as updateTime
+        from galaxy_category as c
+        where c.`level`=#{level} and c.`user_id`=#{userId}
+        order by c.`sort` DESC, c.`blog_count` DESC, length(c.`content`)
+    </select>
+
+
+
+<!--        <select id="getCategoryListAllBlogPublic1"  resultType="java.util.Map">-->
+<!--            select-->
+<!--                    b.`id`,-->
+<!--                    b.`user_id` as userId,-->
+<!--                    b.`category_id` as categoryId,-->
+<!--                    b.`category_content` as categoryContent,-->
+<!--                    b.`tag`,-->
+<!--                    b.`nickname`,-->
+<!--                    b.`title`,-->
+<!--                    b.`description`,-->
+<!--                    b.`catalog`,-->
+<!--                    b.`content_markdown` as contentMarkdown,-->
+<!--                    b.`content_html` as contentHtml,-->
+<!--                    b.`status`,-->
+<!--                    b.`flag`,-->
+<!--                    b.`top`,-->
+<!--                    b.`sort`,-->
+<!--                    b.`is_appreciation` as isAppreciation,-->
+<!--                    b.`is_license` as isLicense,-->
+<!--                    b.`is_comment` as isComment,-->
+<!--                    b.`click_count` as clickCount,-->
+<!--                    b.`like_count` as likeCount,-->
+<!--                    b.`collect_count` as collectCount,-->
+<!--                    b.`comment_count` as commentCount,-->
+<!--                    b.`last_comment_time` as lastCommentTime,-->
+<!--                    b.`create_time` as createTime,-->
+<!--                    b.`update_time`as updateTime,-->
+<!--                    c1.`content` as categoryContent,-->
+<!--                    c1.`description` as categoryDescription,-->
+<!--                    c1.`status` as categoryStatus,-->
+<!--                    c1.`level` as categoryLevel,-->
+<!--                    c1.`pid` as categoryPid,-->
+<!--                    c1.`blog_count` as categoryBlogCount,-->
+<!--                    c1.`sort` as categorySort,-->
+<!--                    c1.`create_time` as categoryCreateTime,-->
+<!--                    c1.`update_time` as categoryUpdateTime-->
+<!--            from galaxy_blog as b,-->
+<!--                 galaxy_category as c1-->
+<!--            where b.`category_id`=c1.`id` and b.`user_id`=c1.`user_id` and c1.`level`=1 and b.`status`=1-->
+<!--        </select>-->
+
+<!--    <select id="getCategoryListAllBlogAll1"  resultType="java.util.Map">-->
+<!--        select-->
+<!--                b.`id`,-->
+<!--                b.`user_id` as userId,-->
+<!--                b.`category_id` as categoryId,-->
+<!--                b.`category_content` as categoryContent,-->
+<!--                b.`tag`,-->
+<!--                b.`nickname`,-->
+<!--                b.`title`,-->
+<!--                b.`description`,-->
+<!--                b.`catalog`,-->
+<!--                b.`content_markdown` as contentMarkdown,-->
+<!--                b.`content_html` as contentHtml,-->
+<!--                b.`status`,-->
+<!--                b.`flag`,-->
+<!--                b.`top`,-->
+<!--                b.`sort`,-->
+<!--                b.`is_appreciation` as isAppreciation,-->
+<!--                b.`is_license` as isLicense,-->
+<!--                b.`is_comment` as isComment,-->
+<!--                b.`click_count` as clickCount,-->
+<!--                b.`like_count` as likeCount,-->
+<!--                b.`collect_count` as collectCount,-->
+<!--                b.`comment_count` as commentCount,-->
+<!--                b.`last_comment_time` as lastCommentTime,-->
+<!--                b.`create_time` as createTime,-->
+<!--                b.`update_time`as updateTime,-->
+<!--                c1.`content` as categoryContent,-->
+<!--                c1.`description` as categoryDescription,-->
+<!--                c1.`status` as categoryStatus,-->
+<!--                c1.`level` as categoryLevel,-->
+<!--                c1.`pid` as categoryPid,-->
+<!--                c1.`blog_count` as categoryBlogCount,-->
+<!--                c1.`sort` as categorySort,-->
+<!--                c1.`create_time` as categoryCreateTime,-->
+<!--                c1.`update_time` as categoryUpdateTime-->
+<!--        from galaxy_blog as b,-->
+<!--             galaxy_category as c1-->
+<!--        where b.`category_id`=c1.`id` and b.`user_id`=c1.`user_id` and c1.`level`=1-->
+<!--    </select>-->
+<!--    <select id="getCategoryListAllBlogPublic1"  resultType="java.util.Map">-->
+<!--        select-->
+<!--                b.`id`,-->
+<!--                b.`user_id` as userId,-->
+<!--                b.`category_id` as categoryId,-->
+<!--                b.`category_content` as categoryContent,-->
+<!--                b.`tag`,-->
+<!--                b.`nickname`,-->
+<!--                b.`title`,-->
+<!--                b.`description`,-->
+<!--                b.`catalog`,-->
+<!--                b.`content_markdown` as contentMarkdown,-->
+<!--                b.`content_html` as contentHtml,-->
+<!--                b.`status`,-->
+<!--                b.`flag`,-->
+<!--                b.`top`,-->
+<!--                b.`sort`,-->
+<!--                b.`is_appreciation` as isAppreciation,-->
+<!--                b.`is_license` as isLicense,-->
+<!--                b.`is_comment` as isComment,-->
+<!--                b.`click_count` as clickCount,-->
+<!--                b.`like_count` as likeCount,-->
+<!--                b.`collect_count` as collectCount,-->
+<!--                b.`comment_count` as commentCount,-->
+<!--                b.`last_comment_time` as lastCommentTime,-->
+<!--                b.`create_time` as createTime,-->
+<!--                b.`update_time`as updateTime,-->
+<!--                c1.`content` as categoryContent,-->
+<!--                c1.`description` as categoryDescription,-->
+<!--                c1.`status` as categoryStatus,-->
+<!--                c1.`level` as categoryLevel,-->
+<!--                c1.`pid` as categoryPid,-->
+<!--                c1.`blog_count` as categoryBlogCount,-->
+<!--                c1.`sort` as categorySort,-->
+<!--                c1.`create_time` as categoryCreateTime,-->
+<!--                c1.`update_time` as categoryUpdateTime-->
+<!--        from galaxy_blog as b,-->
+<!--             galaxy_category as c1-->
+<!--        where b.`category_id`=c1.`id` and b.`user_id`=c1.`user_id` and c1.`level`=1 and b.`status`=1-->
+<!--    </select>-->
+<!--    <select id="getCategoryListMyself1"  resultType="java.util.Map">-->
+<!--        select-->
+<!--                b.`id`,-->
+<!--                b.`user_id` as userId,-->
+<!--                b.`category_id` as categoryId,-->
+<!--                b.`category_content` as categoryContent,-->
+<!--                b.`tag`,-->
+<!--                b.`nickname`,-->
+<!--                b.`title`,-->
+<!--                b.`description`,-->
+<!--                b.`catalog`,-->
+<!--                b.`content_markdown` as contentMarkdown,-->
+<!--                b.`content_html` as contentHtml,-->
+<!--                b.`status`,-->
+<!--                b.`flag`,-->
+<!--                b.`top`,-->
+<!--                b.`sort`,-->
+<!--                b.`is_appreciation` as isAppreciation,-->
+<!--                b.`is_license` as isLicense,-->
+<!--                b.`is_comment` as isComment,-->
+<!--                b.`click_count` as clickCount,-->
+<!--                b.`like_count` as likeCount,-->
+<!--                b.`collect_count` as collectCount,-->
+<!--                b.`comment_count` as commentCount,-->
+<!--                b.`last_comment_time` as lastCommentTime,-->
+<!--                b.`create_time` as createTime,-->
+<!--                b.`update_time`as updateTime,-->
+<!--                c1.`content` as categoryContent,-->
+<!--                c1.`description` as categoryDescription,-->
+<!--                c1.`status` as categoryStatus,-->
+<!--                c1.`level` as categoryLevel,-->
+<!--                c1.`pid` as categoryPid,-->
+<!--                c1.`blog_count` as categoryBlogCount,-->
+<!--                c1.`sort` as categorySort,-->
+<!--                c1.`create_time` as categoryCreateTime,-->
+<!--                c1.`update_time` as categoryUpdateTime-->
+<!--        from galaxy_blog as b,-->
+<!--             galaxy_category as c1-->
+<!--        where b.`category_id`=c1.`id` and b.`user_id`=c1.`user_id` and c1.`level`=1 and b.`user_id`=#{userId}-->
+<!--    </select>-->
+
+<!--    <select id="getCategoryListAllBlogAll2"  resultType="java.util.Map">-->
+<!--        select-->
+<!--                b.`id`,-->
+<!--                b.`user_id` as userId,-->
+<!--                b.`category_id` as categoryId,-->
+<!--                b.`category_content` as categoryContent,-->
+<!--                b.`tag`,-->
+<!--                b.`nickname`,-->
+<!--                b.`title`,-->
+<!--                b.`description`,-->
+<!--                b.`catalog`,-->
+<!--                b.`content_markdown` as contentMarkdown,-->
+<!--                b.`content_html` as contentHtml,-->
+<!--                b.`status`,-->
+<!--                b.`flag`,-->
+<!--                b.`top`,-->
+<!--                b.`sort`,-->
+<!--                b.`is_appreciation` as isAppreciation,-->
+<!--                b.`is_license` as isLicense,-->
+<!--                b.`is_comment` as isComment,-->
+<!--                b.`click_count` as clickCount,-->
+<!--                b.`like_count` as likeCount,-->
+<!--                b.`collect_count` as collectCount,-->
+<!--                b.`comment_count` as commentCount,-->
+<!--                b.`last_comment_time` as lastCommentTime,-->
+<!--                b.`create_time` as createTime,-->
+<!--                b.`update_time`as updateTime,-->
+<!--                c2.`content` as categoryContent,-->
+<!--                c2.`description` as categoryDescription,-->
+<!--                c2.`status` as categoryStatus,-->
+<!--                c2.`level` as categoryLevel,-->
+<!--                c2.`pid` as categoryPid,-->
+<!--                c2.`blog_count` as categoryBlogCount,-->
+<!--                c2.`sort` as categorySort,-->
+<!--                c2.`create_time` as categoryCreateTime,-->
+<!--                c2.`update_time` as categoryUpdateTime-->
+<!--        from galaxy_blog as b,-->
+<!--             galaxy_category as c1,-->
+<!--             (  select *-->
+<!--                from galaxy_category-->
+<!--                where `level`=2-->
+<!--                     ) as c2-->
+<!--        where b.`category_id`=c2.`id` and c1.`id`=c2.`pid` and b.`user_id`=c1.`user_id`=c2.`user_id`-->
+<!--    </select>-->
+<!--    <select id="getCategoryListAllBlogPublic2"  resultType="java.util.Map">-->
+<!--        select-->
+<!--                b.`id`,-->
+<!--                b.`user_id` as userId,-->
+<!--                b.`category_id` as categoryId,-->
+<!--                b.`category_content` as categoryContent,-->
+<!--                b.`tag`,-->
+<!--                b.`nickname`,-->
+<!--                b.`title`,-->
+<!--                b.`description`,-->
+<!--                b.`catalog`,-->
+<!--                b.`content_markdown` as contentMarkdown,-->
+<!--                b.`content_html` as contentHtml,-->
+<!--                b.`status`,-->
+<!--                b.`flag`,-->
+<!--                b.`top`,-->
+<!--                b.`sort`,-->
+<!--                b.`is_appreciation` as isAppreciation,-->
+<!--                b.`is_license` as isLicense,-->
+<!--                b.`is_comment` as isComment,-->
+<!--                b.`click_count` as clickCount,-->
+<!--                b.`like_count` as likeCount,-->
+<!--                b.`collect_count` as collectCount,-->
+<!--                b.`comment_count` as commentCount,-->
+<!--                b.`last_comment_time` as lastCommentTime,-->
+<!--                b.`create_time` as createTime,-->
+<!--                b.`update_time`as updateTime,-->
+<!--                c2.`content` as categoryContent,-->
+<!--                c2.`description` as categoryDescription,-->
+<!--                c2.`status` as categoryStatus,-->
+<!--                c2.`level` as categoryLevel,-->
+<!--                c2.`pid` as categoryPid,-->
+<!--                c2.`blog_count` as categoryBlogCount,-->
+<!--                c2.`sort` as categorySort,-->
+<!--                c2.`create_time` as categoryCreateTime,-->
+<!--                c2.`update_time` as categoryUpdateTime-->
+<!--        from galaxy_blog as b,-->
+<!--             galaxy_category as c1,-->
+<!--             (  select *-->
+<!--                from galaxy_category-->
+<!--                where `level`=2-->
+<!--                     ) as c2-->
+<!--        where b.`category_id`=c2.`id` and c1.`id`=c2.`pid` and b.`user_id`=c1.`user_id`=c2.`user_id` and b.`status`=1-->
+<!--    </select>-->
+<!--    <select id="getCategoryListMyself2"  resultType="java.util.Map">-->
+<!--        select-->
+<!--                b.`id`,-->
+<!--                b.`user_id` as userId,-->
+<!--                b.`category_id` as categoryId,-->
+<!--                b.`category_content` as categoryContent,-->
+<!--                b.`tag`,-->
+<!--                b.`nickname`,-->
+<!--                b.`title`,-->
+<!--                b.`description`,-->
+<!--                b.`catalog`,-->
+<!--                b.`content_markdown` as contentMarkdown,-->
+<!--                b.`content_html` as contentHtml,-->
+<!--                b.`status`,-->
+<!--                b.`flag`,-->
+<!--                b.`top`,-->
+<!--                b.`sort`,-->
+<!--                b.`is_appreciation` as isAppreciation,-->
+<!--                b.`is_license` as isLicense,-->
+<!--                b.`is_comment` as isComment,-->
+<!--                b.`click_count` as clickCount,-->
+<!--                b.`like_count` as likeCount,-->
+<!--                b.`collect_count` as collectCount,-->
+<!--                b.`comment_count` as commentCount,-->
+<!--                b.`last_comment_time` as lastCommentTime,-->
+<!--                b.`create_time` as createTime,-->
+<!--                b.`update_time`as updateTime,-->
+<!--                c2.`content` as categoryContent,-->
+<!--                c2.`description` as categoryDescription,-->
+<!--                c2.`status` as categoryStatus,-->
+<!--                c2.`level` as categoryLevel,-->
+<!--                c2.`pid` as categoryPid,-->
+<!--                c2.`blog_count` as categoryBlogCount,-->
+<!--                c2.`sort` as categorySort,-->
+<!--                c2.`create_time` as categoryCreateTime,-->
+<!--                c2.`update_time` as categoryUpdateTime-->
+<!--        from galaxy_blog as b,-->
+<!--             galaxy_category as c1,-->
+<!--             (  select *-->
+<!--                from galaxy_category-->
+<!--                where `level`=2-->
+<!--                     ) as c2-->
+<!--        where b.`category_id`=c2.`id` and c1.`id`=c2.`pid` and b.`user_id`=c1.`user_id`=c2.`user_id`=#{userId}-->
+<!--    </select>-->
+
+<!--    <select id="getCategoryListAllBlogAll2"  resultType="java.util.Map">-->
+<!--        select-->
+<!--                b.`id`,-->
+<!--                b.`user_id` as userId,-->
+<!--                b.`category_id` as categoryId,-->
+<!--                b.`category_content` as categoryContent,-->
+<!--                b.`tag`,-->
+<!--                b.`nickname`,-->
+<!--                b.`title`,-->
+<!--                b.`description`,-->
+<!--                b.`catalog`,-->
+<!--                b.`content_markdown` as contentMarkdown,-->
+<!--                b.`content_html` as contentHtml,-->
+<!--                b.`status`,-->
+<!--                b.`flag`,-->
+<!--                b.`top`,-->
+<!--                b.`sort`,-->
+<!--                b.`is_appreciation` as isAppreciation,-->
+<!--                b.`is_license` as isLicense,-->
+<!--                b.`is_comment` as isComment,-->
+<!--                b.`click_count` as clickCount,-->
+<!--                b.`like_count` as likeCount,-->
+<!--                b.`collect_count` as collectCount,-->
+<!--                b.`comment_count` as commentCount,-->
+<!--                b.`last_comment_time` as lastCommentTime,-->
+<!--                b.`create_time` as createTime,-->
+<!--                b.`update_time`as updateTime,-->
+<!--                c2.`content` as categoryContent,-->
+<!--                c2.`description` as categoryDescription,-->
+<!--                c2.`status` as categoryStatus,-->
+<!--                c2.`level` as categoryLevel,-->
+<!--                c2.`pid` as categoryPid,-->
+<!--                c2.`blog_count` as categoryBlogCount,-->
+<!--                c2.`sort` as categorySort,-->
+<!--                c2.`create_time` as categoryCreateTime,-->
+<!--                c2.`update_time` as categoryUpdateTime-->
+<!--        from galaxy_blog as b,-->
+<!--             galaxy_category as c1,-->
+<!--             (  select *-->
+<!--                from galaxy_category-->
+<!--                where `level`=2-->
+<!--                     ) as c2-->
+<!--        where b.`category_id`=c2.`id` and c1.`id`=c2.`pid` and b.`user_id`=c1.`user_id`=c2.`user_id`-->
+<!--    </select>-->
+</mapper>

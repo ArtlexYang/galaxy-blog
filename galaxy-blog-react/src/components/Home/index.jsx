@@ -8,17 +8,20 @@ import {
   Input 
 } from 'antd';
 import { 
-  HomeOutlined, 
-  RadarChartOutlined, 
-  BarsOutlined, 
-  ContactsOutlined 
+  HomeOutlined,
+  RadarChartOutlined,
+  BarsOutlined,
+  DeploymentUnitOutlined,
+  ContactsOutlined,
 } from '@ant-design/icons';
 
 // 引入子组件
 import Blog from "./Blog";
 import BlogDetail from './Blog/BlogDetail'
 import Galaxy from "./Galaxy";
-import Classification from "./Classification";
+import Category from "./Category";
+import Tag from "./Tag";
+import Record from "./Record";
 import About from "./About";
 // 使用类类读取样式，防止不同组件的重名样式冲突
 import styles from './index.module.css';
@@ -31,7 +34,6 @@ import imgURL from '../../img/favicon.ico';
 const {Header, Content, Footer} = Layout;
 const {Search} = Input;
 export default class Home extends Component {
-
   onMenuClick = () => {
     return console.log("1")
   }
@@ -54,15 +56,15 @@ export default class Home extends Component {
           }}
         >
           <img
+            src={imgURL}
             style={{
               marginLeft: '-20px',
               height: '39px',
               width: '39px',
             }}
-            src={imgURL}
             alt="ArtlexKylin"
           />
-          
+
           <div style={{ marginTop: '-64px', marginLeft: '30px' }}>
             <font color="#fff">Galaxy Blog</font>
           </div>
@@ -72,7 +74,11 @@ export default class Home extends Component {
             style={{ marginTop: '-64px', marginLeft: '140px' }}
             theme="dark"
             mode="horizontal"
-            defaultSelectedKeys={['1']}
+            defaultSelectedKeys={
+              sessionStorage.getItem('homeMenuKey')===null
+              ? '1'
+              : sessionStorage.getItem('homeMenuKey')
+            }
           >
             <Menu.Item
               key="1"
@@ -85,7 +91,7 @@ export default class Home extends Component {
               </Link>
             </Menu.Item>
 
-            <Menu.Item
+            {/* <Menu.Item
               key="2"
               style={{
                 borderLeft: '1px solid rgb(66, 66, 66) !important',
@@ -93,8 +99,8 @@ export default class Home extends Component {
             >
               <Link to="/home/galaxy"><RadarChartOutlined />
                 星图
-                </Link>
-            </Menu.Item>
+              </Link>
+            </Menu.Item> */}
 
             <Menu.Item
               key="3"
@@ -102,7 +108,7 @@ export default class Home extends Component {
                 borderLeft: '1px solid rgb(66, 66, 66) !important',
               }}
             >
-              <Link to="/home/classification"><BarsOutlined />
+              <Link to="/home/category"><BarsOutlined />
                 类型
               </Link>
             </Menu.Item>
@@ -111,13 +117,36 @@ export default class Home extends Component {
               key="4"
               style={{
                 borderLeft: '1px solid rgb(66, 66, 66) !important',
+              }}
+            >
+              <Link to="/home/tag"><DeploymentUnitOutlined />
+                标签
+              </Link>
+            </Menu.Item>
+
+            <Menu.Item
+              key="5"
+              style={{
+                borderLeft: '1px solid rgb(66, 66, 66) !important',
+                borderRight: '1px solid rgb(66, 66, 66) !important',
+              }}
+            >
+              <Link to="/home/record"><ContactsOutlined />
+                归档
+              </Link>
+            </Menu.Item>
+
+            {/* <Menu.Item
+              key="6"
+              style={{
+                borderLeft: '1px solid rgb(66, 66, 66) !important',
                 borderRight: '1px solid rgb(66, 66, 66) !important',
               }}
             >
               <Link to="/home/about"><ContactsOutlined />
                 关于
               </Link>
-            </Menu.Item>
+            </Menu.Item> */}
           </Menu>
 
           <Search
@@ -138,9 +167,9 @@ export default class Home extends Component {
         <Content
           style={{
             margin:'64px auto',
-            backgroundColor: 'white',
-            minHeight: 'auto',
-            width: '70%',
+            // backgroundColor: 'white',
+            minHeight: '1000px',
+            width: '90%',
           }}
         >
           <Switch>
@@ -148,9 +177,11 @@ export default class Home extends Component {
             {/* 声明接收params参数(声明接收) */}
             <Route exact path="/home/blog/:blogId" component={BlogDetail}/>
             <Route path="/home/blog" component={Blog}/>
-            <Route path="/home/galaxy" component={Galaxy}/>
-            <Route path="/home/classification" component={Classification}/>
-            <Route path="/home/about" component={About}/>
+            {/* <Route path="/home/galaxy" component={Galaxy}/> */}
+            <Route path="/home/category" component={Category}/>
+            <Route path="/home/tag" component={Tag}/>
+            <Route path="/home/record" component={Record}/>
+            {/* <Route path="/home/about" component={About}/> */}
             {/* 所有路由均不匹配，去到博客主页 */}
             <Redirect to="/home/blog"/>
           </Switch>

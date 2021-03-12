@@ -10,9 +10,7 @@ import pers.artlex.entity.GalaxyUser;
 import pers.artlex.service.GalaxyUserService;
 
 /**
- * <p>
  * 前端控制器
- * </p>
  *
  * @author ArtlexKylin
  * @since 2020-12-01

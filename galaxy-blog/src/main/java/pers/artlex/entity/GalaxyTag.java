@@ -22,41 +22,23 @@ import lombok.experimental.Accessors;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class GalaxyBlog implements Serializable {
+public class GalaxyTag implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
-    @NotNull(message = "博客作者ID不能为空")
+    @NotNull(message = "标签所有者ID不能为空")
     private Long userId;
-    private Long categoryId;
-    private String categoryContent;
-    private String tag;
+    private Long blogId;
 
-    @NotBlank(message = "博客作者昵称不能为空")
-    private String nickname;
-    @NotBlank(message = "博客标题不能为空")
-    private String title;
+    @NotBlank(message = "标签名不能为空")
+    private String content;
     private String description;
-    private String catalog;
-    private String contentMarkdown;
-    private String contentHtml;
 
     private Integer status;
-    private Integer flag;
-    private Long top;
-    private Long sort;
+    private Long blogCount;
 
-    private Integer isAppreciation;
-    private Integer isLicense;
-    private Integer isComment;
-    private Long clickCount;
-    private Long likeCount;
-    private Long collectCount;
-    private Long commentCount;
-
-    private LocalDateTime lastCommentTime;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 }

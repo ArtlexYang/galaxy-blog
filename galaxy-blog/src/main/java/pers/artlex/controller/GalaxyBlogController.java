@@ -2,6 +2,7 @@ package pers.artlex.controller;
 
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -12,15 +13,17 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import pers.artlex.common.lang.ResponseResult;
 import pers.artlex.entity.GalaxyBlog;
+import pers.artlex.entity.GalaxyTag;
 import pers.artlex.service.GalaxyBlogService;
+import pers.artlex.service.GalaxyTagService;
 import pers.artlex.util.ShiroUtil;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 
 /**
- * <p>
- *  前端控制器
- * </p>
+ * 前端控制器
  *
  * @author ArtlexKylin
  * @since 2020-12-01
@@ -30,6 +33,8 @@ public class GalaxyBlogController {
 
     @Autowired
     GalaxyBlogService galaxyBlogService;
+    @Autowired
+    GalaxyTagService galaxyTagService;
 
     private static enum USER {
         BLOGGER("普通博主", 1),
@@ -46,8 +51,7 @@ public class GalaxyBlogController {
 
     private static enum BLOGSTATUS {
         DRAFT("未发布草稿", 0),
-        PRIVATE("私有发布", 1),
-        PUBLIC("公开发布", 2);
+        PUBLIC("公开发布", 1);
 
         private String name;
         private Integer status;
@@ -59,18 +63,17 @@ public class GalaxyBlogController {
     }
 
     /**
-     * 显示博客列表
-     * 默认只有一页内容
+     * 显示所有发布的博客列表（每页10篇）
      *
      * @param currentPage: 当前用户选择的页面
      * @param blogCount: 当前页面显示的博客数
      * @param isAdmin: 是否是管理模式
      * @return
      */
-    @GetMapping("/blogs")
-    public ResponseResult list(@RequestParam(defaultValue = "1") Integer currentPage,
-                               @RequestParam(defaultValue = "10") Integer blogCount,
-                               @RequestParam(defaultValue = "false") Boolean isAdmin) {
+    @GetMapping("/blogList")
+    public ResponseResult getBlogList(@RequestParam(defaultValue = "1") Integer currentPage,
+                                   @RequestParam(defaultValue = "10") Integer blogCount,
+                                   @RequestParam(defaultValue = "false") Boolean isAdmin) {
         // 设置每页显示的博客数
         Page page = new Page(currentPage, blogCount);
         IPage pageData;
@@ -88,8 +91,92 @@ public class GalaxyBlogController {
             // 根据创建时间显示（公开发布的才能显示）
             pageData = galaxyBlogService.page(page, new QueryWrapper<GalaxyBlog>().eq("status", BLOGSTATUS.PUBLIC.status.intValue()).orderByDesc("create_time"));
         }
-
         return ResponseResult.success(pageData);
+    }
+
+    /**
+     * 显示分类下公开发布的博客列表（每页10篇）
+     *
+     * @param currentPage: 当前用户选择的页面
+     * @param blogCount: 当前页面显示的博客数
+     * @param isAdmin: 是否是管理模式
+     * @return
+     */
+    @GetMapping("/blogList/category/{categoryId}")
+    public ResponseResult getCategoryBlogList(@PathVariable(name = "categoryId") Long categoryId,
+                                           @RequestParam(defaultValue = "1") Integer currentPage,
+                                           @RequestParam(defaultValue = "10") Integer blogCount,
+                                           @RequestParam(defaultValue = "false") Boolean isAdmin) {
+        // 设置每页显示的博客数
+        Page page = new Page(currentPage, blogCount);
+        IPage pageData;
+        if (isAdmin) {
+//            System.out.println(ShiroUtil.getProfile().getStatus());
+            // 只能编辑自己的文章（超级管理员可以看到并编辑所有的文章，不管是什么状态的）
+            if (ShiroUtil.getProfile().getStatus().intValue() == USER.ADMINISTRATOR.status.intValue()) {
+                // 根据创建时间显示
+                pageData = galaxyBlogService.page(page, new QueryWrapper<GalaxyBlog>().eq("category_id", categoryId).orderByDesc("create_time"));
+            } else {
+                // 只显示该用户自己的博客
+                pageData = galaxyBlogService.page(page, new QueryWrapper<GalaxyBlog>().eq("category_id", categoryId).eq("user_id", ShiroUtil.getProfile().getId().longValue()).orderByDesc("create_time"));
+            }
+        } else {
+            // 根据创建时间显示（公开发布的才能显示）
+            pageData = galaxyBlogService.page(page, new QueryWrapper<GalaxyBlog>().eq("category_id", categoryId).eq("status", BLOGSTATUS.PUBLIC.status.intValue()).orderByDesc("create_time"));
+        }
+        return ResponseResult.success(pageData);
+    }
+
+    /**
+     * 显示标签下公开发布的博客列表（每页10篇）
+     *
+     * @param currentPage: 当前用户选择的页面
+     * @param blogCount: 当前页面显示的博客数
+     * @param isAdmin: 是否是管理模式
+     * @return
+     */
+    @GetMapping("/blogList/tag/{tagContent}")
+    public ResponseResult getTagBlogList(@PathVariable(name = "tagContent") String tagContent,
+                                       @RequestParam(defaultValue = "1") Integer currentPage,
+                                       @RequestParam(defaultValue = "10") Integer blogCount,
+                                       @RequestParam(defaultValue = "false") Boolean isAdmin) {
+        // 设置每页显示的博客数
+        Page page = new Page(currentPage, blogCount);
+        IPage pageData;
+        if (isAdmin) {
+//            System.out.println(ShiroUtil.getProfile().getStatus());
+            // 只能编辑自己的文章（超级管理员可以看到并编辑所有的文章，不管是什么状态的）
+            if (ShiroUtil.getProfile().getStatus().intValue() == USER.ADMINISTRATOR.status.intValue()) {
+                pageData = galaxyBlogService.getTagBlogListPublicPage(tagContent, page);
+            } else {
+                // 只显示该用户自己的博客
+                pageData = galaxyBlogService.getTagBlogListMyselPage(tagContent, ShiroUtil.getProfile().getId().longValue(), page);
+            }
+        } else {
+            // 根据创建时间显示（公开发布的才能显示）
+            pageData = galaxyBlogService.getTagBlogListPublicPage(tagContent, page);
+        }
+        return ResponseResult.success(pageData);
+    }
+
+    /**
+     * 根据月份统计公开发布的博客的数量
+     * @return
+     */
+    @GetMapping("/blogList/time")
+    public ResponseResult getBlog2TimeListPublic() {
+        List<Map<String, String>> blogTimeList = this.galaxyBlogService.statisticsBlogTimeListPublic();
+        return ResponseResult.success(JSONUtil.toJsonStr(blogTimeList));
+    }
+
+    /**
+     * 根据月份统计公开发布的博客的数量
+     * @return
+     */
+    @GetMapping("/blogList/time/{time}")
+    public ResponseResult getTime2BlogListPublic(@PathVariable(name = "time") String time) {
+        List<Map<String, String>> blogTimeList = this.galaxyBlogService.getTimeBlogListPublic(time);
+        return ResponseResult.success(JSONUtil.toJsonStr(blogTimeList));
     }
 
     /**
@@ -103,7 +190,6 @@ public class GalaxyBlogController {
         // 查找指定的博客
         GalaxyBlog blog = galaxyBlogService.getById(id);
         Assert.notNull(blog, "博客不存在");
-
         return ResponseResult.success(blog);
     }
 
@@ -136,8 +222,6 @@ public class GalaxyBlogController {
         // 防止前端乱传状态导致错误
         if (galaxyBlog.getStatus().intValue()==BLOGSTATUS.DRAFT.status.intValue()) {
             temp.setStatus(BLOGSTATUS.DRAFT.status.intValue());
-        } else if (galaxyBlog.getStatus().intValue()==BLOGSTATUS.PRIVATE.status.intValue()) {
-            temp.setStatus(BLOGSTATUS.PRIVATE.status.intValue());
         } else if (galaxyBlog.getStatus().intValue()==BLOGSTATUS.PUBLIC.status.intValue()) {
             temp.setStatus(BLOGSTATUS.PUBLIC.status.intValue());
         } else {

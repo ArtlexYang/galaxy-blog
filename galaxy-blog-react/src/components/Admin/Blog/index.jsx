@@ -3,6 +3,11 @@ import { Link } from 'react-router-dom';
 
 import { List, Button, Skeleton, message, Popconfirm } from 'antd';
 import axios from 'axios';
+// 引入redux相关文件
+import store from '../../../redux/store'
+import {
+  delUser,
+} from '../../../redux/actions/login.js'
 
 /**
  * 本组件用于管理博客（增删改查等）
@@ -31,19 +36,22 @@ export default class Blog extends Component {
         res => {
           // 获取数据
           this.setState({
-                          initLoading: false,
-                          loading: false,
-                          list: res.data.data.records,
-                          currentPage: currentPage,
-                          total: res.data.data.total,
-                          pageSize: res.data.data.size
-                        });
+            initLoading: false,
+            loading: false,
+            list: res.data.data.records,
+            currentPage: currentPage,
+            total: res.data.data.total,
+            pageSize: res.data.data.size
+          });
         },
         err => {
           // 弹窗提示
-          message.error('获取博客列表失败，请重试！');
-        }
-    );
+          message.error(err.response.data.message);
+          // token失效了退出登录
+          if (err.response.data.message==="token已失效，请重新登录") {
+            store.dispatch(delUser())
+          }
+        });
   }
 
   // 新建博客
@@ -70,7 +78,7 @@ export default class Blog extends Component {
       }
     ).catch(
       err => {
-        message.error("服务器错误，删除失败，请稍候重试！");
+        message.error(err.response.data.message);
     })
     // 刷新一下（重新获取一下数据就好）
     this.getPage(this.state.currentPage)
@@ -131,11 +139,7 @@ export default class Blog extends Component {
                     title={<Link onClick={() => this.gotoBolgDetail(item.id)}>{item.title}</Link>}
                     description={
                       <font>
-                        {(item.status===1 ? "私有发布"
-                                          : (item.status===2
-                                             ? "公开发布"
-                                             : "未发布草稿")
-                        )}
+                        {(item.status===1 ? "公开发布" : "未发布草稿")}
                       </font>}
                   />
                 </Skeleton>

@@ -8,10 +8,13 @@
   top: 0px;
   bottom: 0px;
   
-  background-image: url(../../img/galaxy.jpg);  /* 背景图片，可商用，来源：https://pixabay.com/photos/galaxy-star-infinity-cosmos-dark-3608029/ */
-  background-repeat: no-repeat;  /* 背景图片不重复 */
-  background-size: cover;
-  background-position: 0 -220px;  /* 左右不动 上移220px */
+  /* 背景图片，可商用，来源：https://pixabay.com/photos/galaxy-star-infinity-cosmos-dark-3608029/ */
+  /* background-image: url(../../img/galaxy.jpg); */
+  /* 背景图片不重复 */
+  /* background-repeat: no-repeat; */
+  /* background-size: cover; */
+  /* 左右不动 上移220px */
+  /* background-position: 0 -220px; */
 }
 
 .bigBox {

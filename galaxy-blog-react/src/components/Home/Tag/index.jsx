@@ -1,21 +1,17 @@
 import React, { Component } from 'react'
-import { Route, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 import {
   Pagination,
   message,
   List,
-  Button,
   Skeleton,
   Space,
-  Statistic,
-  Tag
 } from 'antd';
+// 因为Tag重名了，所以要改变引入方式
+import * as antd from 'antd';
 import {
   EyeOutlined,
-  FileTextOutlined,
-  BarsOutlined,
-  DeploymentUnitOutlined,
   LikeOutlined,
   StarOutlined,
   MessageOutlined
@@ -29,41 +25,45 @@ const IconText = ({ icon, text }) => (
     {text}
   </Space>
 );
-export default class Blog extends Component {
+export default class Tag extends Component {
   constructor(props) {
     super(props)
     // 初始化状态
     this.state = {
       initLoading: true,
       loading: false,
-      statistics: null,
-      clickCount: 0,
-      likeCount: 0,
-      collectCount: 0,
-      commentCount: 0,
+      treeData: null,
       blogList: [],
       currentPage: 1,
-      total: 0,
+      tagContent: null,
+      total: null,
       pageSize: 10,
     }
 
     // 获取数据
-    this.getPage(1)
-    this.getStatistics()
+    // this.getPage(1)
+    this.getTreeData()
+    // this.getTagBlogList(1, 1)
   }
 
   // 左侧数据展示栏相关
-  getStatistics = async () => {
+  getTreeData = async () => {
     this.setState({
       loading: true,
     });
     await axios
-      .get('http://localhost:8081/statistics')
+      .get('http://localhost:8081/tagList')
       .then(
         res => {
           // console.log(res.data.data)
           // 获取数据
-          this.setState({ loading: false, statistics: JSON.parse(res.data.data) });
+          if (JSON.parse(res.data.data)[0] !== null || JSON.parse(res.data.data)[0] !== undefined || JSON.parse(res.data.data)[0] !== "") {
+            this.setState({ loading: false, treeData: JSON.parse(res.data.data), tagContent: JSON.parse(res.data.data)[0].title.split(" ")[0] });
+            this.getTagBlogList(1, JSON.parse(res.data.data)[0].title.split(" ")[0]);
+          } else {
+            // 弹窗提示
+            message.error('无标签可加载');
+          }
         },
         err => {
           // 弹窗提示
@@ -72,18 +72,19 @@ export default class Blog extends Component {
   }
 
   // 右侧博客列表相关
-  getPage = async currentPage => {
+  getTagBlogList = async (currentPage, tagContent) => {
     this.setState({
       loading: true,
     });
     await axios
-      .get('http://localhost:8081/blogList?currentPage=' + currentPage)
+      .get('http://localhost:8081/blogList/tag/' + tagContent + '?currentPage=' + currentPage)
       .then(
         res => {
           // 获取数据
           this.setState({
             initLoading: false,
             loading: false,
+            tagContent,
             blogList: res.data.data.records,
             currentPage: currentPage,
             total: res.data.data.total,
@@ -95,7 +96,7 @@ export default class Blog extends Component {
           message.error(err.response.data.message);
         });
   }
-  paginationChange = (page, pageSize) => { this.getPage(page) }
+  paginationChange = (page, pageSize) => { this.getTagBlogList(page, this.state.tagContent) }
   gotoBolgDetail = (blogId) => { window.open('about:blank').location.href=`/home/blog/${blogId}` }
 
   randomColor = () => {
@@ -106,11 +107,12 @@ export default class Blog extends Component {
   }
 
   render() {
-    const { initLoading, loading, total, statistics, blogList, pageSize } = this.state;
+    const { initLoading, loading, total, currentPage, treeData, tagContent, blogList, pageSize } = this.state;
     return (
       <>
+        {console.log(tagContent)}
         {/* 防止刷新错位 */}
-        {sessionStorage.setItem('homeMenuKey', '1')}
+        {sessionStorage.setItem('homeMenuKey', '4')}
         <div
           style={{
             display: 'inline-block',
@@ -127,66 +129,26 @@ export default class Blog extends Component {
               backgroundColor: 'white',
               borderRadius: '20px',
               minWidth:'350px',
-              textAlign: 'center'
+              textAlign: 'center',
+              fontSize: '2em',
+              fontWeight: 'bold'
             }}
           >
-            {( statistics===null || statistics===undefined)
-              ? '统计列表加载中...'
-              : (<>
-                  <Space style={{ maxWidth:'320px' }} align='center' direction='vertical'>
-                    <Statistic
-                      style={{ display: 'inline-block', width:'auto' }}
-                      title="总点击数"
-                      value={statistics.blogStatisticsPublic[0].clickCount}
-                      prefix={<EyeOutlined />}
-                    />
-                    <Space>
-                      <Statistic
-                        style={{ display: 'inline-block', minWidth:'100px', maxWidth:'160px' }}
-                        title="总博客数"
-                        value={total}
-                        prefix={<FileTextOutlined />}
-                      />
-                      <Statistic
-                        style={{ display: 'inline-block', minWidth:'100px', maxWidth:'160px' }}
-                        title="总点赞数"
-                        value={statistics.blogStatisticsPublic[0].likeCount}
-                        prefix={<LikeOutlined />}
-                      />
-                    </Space>
-                    <Space>
-                      <Statistic
-                        style={{ display: 'inline-block', minWidth:'100px', maxWidth:'160px' }}
-                        title="总收藏数"
-                        value={statistics.blogStatisticsPublic[0].collectCount}
-                        prefix={<StarOutlined />}
-                      />
-                      <Statistic
-                        style={{ display: 'inline-block', minWidth:'100px', maxWidth:'160px' }}
-                        title="总评论数"
-                        value={statistics.blogStatisticsPublic[0].commentCount}
-                        prefix={<MessageOutlined />}
-                      />
-                    </Space>
-                    <Space>
-                      <Statistic
-                        style={{ display: 'inline-block', minWidth:'100px', maxWidth:'160px' }}
-                        title="总分类数"
-                        value={this.state.statistics.categoryList.length}
-                        prefix={<BarsOutlined />}
-                      />
-                      <Statistic
-                        style={{ display: 'inline-block', minWidth:'100px', maxWidth:'160px' }}
-                        title="总标签数"
-                        value={this.state.statistics.tagList.length}
-                        prefix={<DeploymentUnitOutlined />}
-                      />
-                    </Space>
-                  </Space>
-                </>
-            )}
+            标签列表
           </div>
-
+          <div
+            style={{
+              margin:'32px 0px',
+              padding: '16px',
+              backgroundColor: 'white',
+              borderRadius: '20px',
+              minWidth:'350px',
+              textAlign: 'center',
+              fontSize: '1em',
+            }}
+          >
+            当前标签：{tagContent}
+          </div>
           <div
             style={{
               margin:'32px 0px',
@@ -197,68 +159,40 @@ export default class Blog extends Component {
               textAlign: 'center'
             }}
           >
-            精选分类<br/><br/>
             <Space wrap>
-              {( statistics===null || statistics===undefined)
-              ? '分类列表加载中...'
-              : statistics.categoryList.map((categoryObj, index) => {
-                  if (index>=10) {
-                    return null
-                  }
-                  return (
-                    <Tag style={{ borderRadius: '20px' }} key={categoryObj.content} color={this.randomColor()}>
-                      <Button type="text" shape="round" ghost> 
-                        <a>
-                          {categoryObj.content + " [" + categoryObj.total + "篇]"}
-                        </a>
-                        <br/>
-                      </Button>
-                    </Tag>
-                  )
-                })
-              }
-            </Space>
-          </div>
-
-          <div
-            style={{
-              margin:'32px 0px',
-              padding: '16px',
-              backgroundColor: 'white',
-              borderRadius: '20px',
-              minWidth:'350px',
-              textAlign: 'center'
-            }}
-          >
-          精选标签<br/><br/>
-            <Space wrap>
-              {( statistics===null || statistics===undefined)
+              {( treeData===null || treeData===undefined)
               ? '标签列表加载中...'
-              : statistics.tagList.map((tagObj, index) => {
-                  if (index>=10) {
-                    return null
-                  }
+              : treeData.map((tagObj, index) => {
                   return (
-                    <Tag style={{ borderRadius: '20px' }} key={tagObj.content} color={this.randomColor()}>
-                      <a>
-                        {tagObj.content + " [" + tagObj.total + "篇]"}
-                      </a>
+                    <antd.Tag
+                      style={{ borderRadius: '20px' }}
+                      onClick={() => this.getTagBlogList(1, tagObj.title.split(" ")[0])}
+                      key={tagObj.title}
+                      color={this.randomColor()}
+                    >
+                      {/* <a>标签添加点击动画 */}
+                      <a>{tagObj.title}</a>
                       <br/>
-                    </Tag>
+                    </antd.Tag>
                   )
                 })
               }
             </Space>
           </div>
-          <Pagination
-            style={{ margin: '64px -16px', textAlign: 'center' }}
-            onChange={this.paginationChange}
-            // showSizeChanger
-            showQuickJumper
-            total={total}
-          />
+          
+          { ( this.state.total===null )
+            ? '导航栏加载中...'
+            : (<Pagination
+                style={{ margin: '64px -16px', textAlign: 'center' }}
+                onChange={this.paginationChange}
+                // showSizeChanger
+                showQuickJumper
+                total={total}
+                pageSize={pageSize}
+              />)
+          }
+          
         </div>
-
 
         <div style={{ margin:'10px 0px', float: 'right', width: '76%'  }}>
           <List
@@ -301,19 +235,19 @@ export default class Blog extends Component {
                     {(item.categoryContent===null || item.categoryContent===undefined || item.categoryContent==="")
                     ? ( <>
                           <>分类：</>
-                          <Tag>
+                          <antd.Tag>
                               无
-                          </Tag>
+                          </antd.Tag>
                         </>
                       )
                     : (
                         <>
                           <>分类：</>
-                          <Tag color="blue">
+                          <antd.Tag color="blue">
                             <a>
                               {item.categoryContent}
                             </a>
-                          </Tag>
+                          </antd.Tag>
                         </>
                       )
                     }
@@ -324,23 +258,24 @@ export default class Blog extends Component {
                     { (item.tag===null || item.tag===undefined || item.tag==="")
                     ? (
                         <>
-                          <Tag style={{ borderRadius: '20px' }}>
+                          <antd.Tag style={{ borderRadius: '20px' }}>
                               无
-                          </Tag>
+                          </antd.Tag>
                         </>
                       )
                     : (item.tag.split(",").map(
                         (tag) => {
                           return (
-                            <Tag style={{ borderRadius: '20px' }} key={tag} color={this.randomColor()}>
+                            <antd.Tag style={{ borderRadius: '20px' }} key={tag} color={this.randomColor()}>
                               <a>
                                 {tag}
                               </a>
-                            </Tag>
+                            </antd.Tag>
                           )
                         }
                       )) 
                     }
+                    
                   </Skeleton>
                 </List.Item>
               </div>

@@ -5,9 +5,7 @@ import pers.artlex.entity.GalaxyUser;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
- * <p>
- *  Mapper 接口
- * </p>
+ * Mapper 接口
  *
  * @author ArtlexKylin
  * @since 2020-12-01

@@ -77,7 +77,7 @@ public class GalaxyTagController {
                 Long tempUserId = ShiroUtil.getProfile().getId().longValue();
                 if (tempStatus >= USER.BLOGGER.status.intValue()) {
                     // 显示所有的统计
-                    categoryList = galaxyTagService.getTagListMyself(1L);
+                    categoryList = galaxyTagService.getTagListMyself(tempUserId);
                 } else {
                     return ResponseResult.failure("权限不足，无法统计");
                 }

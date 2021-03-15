@@ -149,7 +149,7 @@ export default class Home extends Component {
             </Menu.Item> */}
           </Menu>
 
-          <Search
+          {/* <Search
             onClick={this.onSearchClick} 
             style={{
               position: 'absolute',
@@ -161,7 +161,7 @@ export default class Home extends Component {
             }}
             placeholder="输入关键词查找博客"
             allowClear
-          />
+          /> */}
         </Header>
 
         <Content

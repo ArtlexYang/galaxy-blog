@@ -37,7 +37,7 @@ public class GalaxyTag implements Serializable {
     private String description;
 
     private Integer status;
-    private Long blogCount;
+    private Long sort;
 
     private LocalDateTime createTime;
     private LocalDateTime updateTime;

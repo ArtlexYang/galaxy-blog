@@ -21,7 +21,7 @@ export default class Blog extends Component {
     list: [],
     currentPage: 1,
     total: -1,
-    pageSize: -1
+    pageSize: 10
   };
 
   componentDidMount() {
@@ -31,7 +31,7 @@ export default class Blog extends Component {
   getPage = async (currentPage) => {
     this.setState({loading: true})
     await axios
-      .get('http://localhost:8081/blogs?currentPage=' + currentPage + '&isAdmin=true')
+      .get('http://localhost:8081/blogList?currentPage=' + currentPage + '&isAdmin=true')
       .then(
         res => {
           // 获取数据

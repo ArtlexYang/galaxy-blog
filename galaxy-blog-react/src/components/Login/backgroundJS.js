@@ -20,7 +20,7 @@ cvs.style.cssText = "\
     position:fixed;\
     top:0px;\
     left:0px;\
-    z-index:-1;\
+    z-index:-10;\
     opacity:1.0;\
     ";
 document.body.appendChild(cvs);

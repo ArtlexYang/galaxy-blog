@@ -53,7 +53,7 @@ export default class Category extends Component {
       loading: true,
     });
     await axios
-      .get('http://localhost:8081/categoryList')
+      .get('http://localhost:8081/categoryListTree')
       .then(
         res => {
           // console.log(res.data.data)

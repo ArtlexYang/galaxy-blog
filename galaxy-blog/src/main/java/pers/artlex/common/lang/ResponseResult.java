@@ -9,16 +9,16 @@ import lombok.Data;
 @Data
 public class ResponseResult {
     private int statusCode;
-    private String massage;
+    private String message;
     private Object data;
 
     /**
      * 构造方法不允许外部调用
      */
     private ResponseResult(){}
-    private ResponseResult(int statusCode, String massage, Object data) {
+    private ResponseResult(int statusCode, String message, Object data) {
         this.statusCode = statusCode;
-        this.massage = massage;
+        this.message = message;
         this.data = data;
     }
 
@@ -60,7 +60,7 @@ public class ResponseResult {
     public static ResponseResult failure(String massage) {
         ResponseResult rr = new ResponseResult();
         rr.setStatusCode(500);
-        rr.setMassage(massage);
+        rr.setMessage(massage);
         rr.setData(null);
         return new ResponseResult(500, massage, null);
     }

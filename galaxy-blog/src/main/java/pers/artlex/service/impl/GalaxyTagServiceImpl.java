@@ -60,6 +60,14 @@ public class GalaxyTagServiceImpl extends ServiceImpl<GalaxyTagMapper, GalaxyTag
      */
     @Override
     public List<TreeData> getTagListMyself(Long userId) {
-        return null;
+        // 读1级列表
+        List<Map<String, String>> tagList = galaxyTagMapper.getTagStatisticsMyself(userId);
+        List<TreeData> result = new ArrayList<>();
+        // 建立1级树
+        for (int i=0; i<tagList.size(); ++i) {
+            Map<String, String> tempMap = tagList.get(i);
+            result.add(new TreeData(String.valueOf(i), tempMap.get("content") + " [" + String.valueOf(tempMap.get("total")) + "篇]"));
+        }
+        return result;
     }
 }

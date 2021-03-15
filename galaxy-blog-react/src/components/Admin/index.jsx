@@ -14,8 +14,8 @@ import {
 import imgURL from '../../img/favicon.ico';
 import Data from './Data';
 import Blog from './Blog';
-import Classification from './Classification';
-import Label from './Label';
+import Category from './Category';
+import Tag from './Tag';
 import User from './User';
 
 /**
@@ -69,7 +69,7 @@ export default class Admin extends Component {
             <font color="#fff">Galaxy Blog</font>
           </div>
 
-          <Menu theme="dark" defaultSelectedKeys={['2']} mode="inline">
+          <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline">
 
             <Menu.Item key="1" icon={<PieChartOutlined />}>
               <Link to="/admin/data">
@@ -84,16 +84,16 @@ export default class Admin extends Component {
             </Menu.Item>
 
             <Menu.Item key="3" icon={<BarsOutlined />}>
-              <Link to="/admin/classification">
+              <Link to="/admin/category">
                 分类管理
               </Link>
             </Menu.Item>
 
-            <Menu.Item key="4" icon={<DeploymentUnitOutlined />}>
-              <Link to="/admin/label">
+            {/* <Menu.Item key="4" icon={<DeploymentUnitOutlined />}>
+              <Link to="/admin/tag">
                 标签管理
               </Link>
-            </Menu.Item>
+            </Menu.Item> */}
 
             <Menu.Item key="5" icon={<UserOutlined />}>
               <Link to="/admin/user">
@@ -125,11 +125,11 @@ export default class Admin extends Component {
             {/* 注册路由 */}
             <Route path="/admin/data" component={Data}/>
             <Route path="/admin/blog" component={Blog}/>
-            <Route path="/admin/classification" component={Classification}/>
-            <Route path="/admin/label" component={Label}/>
+            <Route path="/admin/category" component={Category}/>
+            {/* <Route path="/admin/tag" component={Tag}/> */}
             <Route path="/admin/user" component={User}/>
             {/* 所有路由均不匹配 */}
-            <Redirect to="/admin/blog"/>
+            <Redirect to="/admin/data"/>
 
             {/* 在文本中居中，美观些 */}
             <Footer style={{ marginTop: '50px', textAlign: 'center', }}>Created by ArtlexKylin</Footer>

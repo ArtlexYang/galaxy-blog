@@ -13,8 +13,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import pers.artlex.common.lang.ResponseResult;
 import pers.artlex.entity.GalaxyBlog;
+import pers.artlex.entity.GalaxyCategory;
 import pers.artlex.entity.GalaxyTag;
 import pers.artlex.service.GalaxyBlogService;
+import pers.artlex.service.GalaxyCategoryService;
 import pers.artlex.service.GalaxyTagService;
 import pers.artlex.util.ShiroUtil;
 
@@ -33,6 +35,8 @@ public class GalaxyBlogController {
 
     @Autowired
     GalaxyBlogService galaxyBlogService;
+    @Autowired
+    GalaxyCategoryService galaxyCategoryService;
     @Autowired
     GalaxyTagService galaxyTagService;
 
@@ -63,17 +67,17 @@ public class GalaxyBlogController {
     }
 
     /**
-     * 显示所有发布的博客列表（每页10篇）
+     * 显示所有发布的博客列表（默认每页10篇）
      *
      * @param currentPage: 当前用户选择的页面
-     * @param blogCount: 当前页面显示的博客数
-     * @param isAdmin: 是否是管理模式
+     * @param blogCount:   当前页面显示的博客数
+     * @param isAdmin:     是否是管理模式
      * @return
      */
     @GetMapping("/blogList")
     public ResponseResult getBlogList(@RequestParam(defaultValue = "1") Integer currentPage,
-                                   @RequestParam(defaultValue = "10") Integer blogCount,
-                                   @RequestParam(defaultValue = "false") Boolean isAdmin) {
+                                      @RequestParam(defaultValue = "10") Integer blogCount,
+                                      @RequestParam(defaultValue = "false") Boolean isAdmin) {
         // 设置每页显示的博客数
         Page page = new Page(currentPage, blogCount);
         IPage pageData;
@@ -98,15 +102,15 @@ public class GalaxyBlogController {
      * 显示分类下公开发布的博客列表（每页10篇）
      *
      * @param currentPage: 当前用户选择的页面
-     * @param blogCount: 当前页面显示的博客数
-     * @param isAdmin: 是否是管理模式
+     * @param blogCount:   当前页面显示的博客数
+     * @param isAdmin:     是否是管理模式
      * @return
      */
     @GetMapping("/blogList/category/{categoryId}")
     public ResponseResult getCategoryBlogList(@PathVariable(name = "categoryId") Long categoryId,
-                                           @RequestParam(defaultValue = "1") Integer currentPage,
-                                           @RequestParam(defaultValue = "10") Integer blogCount,
-                                           @RequestParam(defaultValue = "false") Boolean isAdmin) {
+                                              @RequestParam(defaultValue = "1") Integer currentPage,
+                                              @RequestParam(defaultValue = "10") Integer blogCount,
+                                              @RequestParam(defaultValue = "false") Boolean isAdmin) {
         // 设置每页显示的博客数
         Page page = new Page(currentPage, blogCount);
         IPage pageData;
@@ -131,15 +135,15 @@ public class GalaxyBlogController {
      * 显示标签下公开发布的博客列表（每页10篇）
      *
      * @param currentPage: 当前用户选择的页面
-     * @param blogCount: 当前页面显示的博客数
-     * @param isAdmin: 是否是管理模式
+     * @param blogCount:   当前页面显示的博客数
+     * @param isAdmin:     是否是管理模式
      * @return
      */
     @GetMapping("/blogList/tag/{tagContent}")
     public ResponseResult getTagBlogList(@PathVariable(name = "tagContent") String tagContent,
-                                       @RequestParam(defaultValue = "1") Integer currentPage,
-                                       @RequestParam(defaultValue = "10") Integer blogCount,
-                                       @RequestParam(defaultValue = "false") Boolean isAdmin) {
+                                         @RequestParam(defaultValue = "1") Integer currentPage,
+                                         @RequestParam(defaultValue = "10") Integer blogCount,
+                                         @RequestParam(defaultValue = "false") Boolean isAdmin) {
         // 设置每页显示的博客数
         Page page = new Page(currentPage, blogCount);
         IPage pageData;
@@ -161,6 +165,7 @@ public class GalaxyBlogController {
 
     /**
      * 根据月份统计公开发布的博客的数量
+     *
      * @return
      */
     @GetMapping("/blogList/time")
@@ -171,6 +176,7 @@ public class GalaxyBlogController {
 
     /**
      * 根据月份统计公开发布的博客的数量
+     *
      * @return
      */
     @GetMapping("/blogList/time/{time}")
@@ -190,6 +196,9 @@ public class GalaxyBlogController {
         // 查找指定的博客
         GalaxyBlog blog = galaxyBlogService.getById(id);
         Assert.notNull(blog, "博客不存在");
+        // 增加点击量
+        blog.setClickCount(blog.getClickCount() + 1);
+        galaxyBlogService.updateById(blog);
         return ResponseResult.success(blog);
     }
 
@@ -202,10 +211,84 @@ public class GalaxyBlogController {
     @RequiresAuthentication
     @PostMapping("/blog/edit")
     public ResponseResult edit(@Validated @RequestBody GalaxyBlog galaxyBlog) {
+//        System.out.println(galaxyBlog);
         GalaxyBlog temp = null;
 
+        if (galaxyBlog.getStatus()==null) {
+            galaxyBlog.setStatus(0);
+        }
+
+        // 博客分类相关
+        // 处理分类
+        // 判断分类是否变化
+        GalaxyCategory galaxyCategory =
+                galaxyCategoryService.getOne(
+                        new QueryWrapper<GalaxyCategory>()
+                                .eq("user_id", galaxyBlog.getUserId())
+                                .eq("id", galaxyBlog.getCategoryId())
+                                .eq("content", galaxyBlog.getCategoryContent()));
+        // 该博客之前是否有分类（没有分类为null）
+        // 搜索为null说明修改了分类，没有修改就不用对分类进行同步
+        if (galaxyCategory == null) {
+            // 修改了就找到修改前的分类对象
+            galaxyCategory =
+                    galaxyCategoryService.getOne(
+                            new QueryWrapper<GalaxyCategory>()
+                                    .eq("user_id", galaxyBlog.getUserId())
+                                    .eq("id", galaxyBlog.getCategoryId())
+                    );
+            // 分类对象不为空且是发布文章，分类对象中的blogCount要-1
+            if (galaxyCategory != null && galaxyBlog.getStatus() == 1) {
+                galaxyCategory.setBlogCount(galaxyCategory.getBlogCount() - 1);
+                galaxyCategoryService.updateById(galaxyCategory);
+            }
+
+            // 新分类是无分类的话
+            if (galaxyBlog.getCategoryContent() != "") {
+                // 找到修改后的分类对象
+                galaxyCategory =
+                        galaxyCategoryService.getOne(
+                                new QueryWrapper<GalaxyCategory>()
+                                        .eq("user_id", galaxyBlog.getUserId())
+                                        .eq("content", galaxyBlog.getCategoryContent())
+                        );
+                // 如果新分类已经存在了
+                if (galaxyCategory != null) {
+                    // 发布文章才+1
+                    if (galaxyBlog.getStatus() == 1) {
+                        galaxyCategory.setBlogCount(galaxyCategory.getBlogCount() + 1);
+                        galaxyCategoryService.updateById(galaxyCategory);
+                    }
+                    // 更新galaxyBlog的categoryId
+                    galaxyBlog.setCategoryId(galaxyCategory.getId());
+                } else {
+                    galaxyCategory = new GalaxyCategory();
+                    galaxyCategory.setUserId(galaxyBlog.getUserId());
+                    galaxyCategory.setContent(galaxyBlog.getCategoryContent());
+                    // 默认不作为精选显示
+                    galaxyCategory.setStatus(0);
+                    // 发布文章才设为1，不然就用默认的0
+                    if (galaxyBlog.getStatus() == 1) {
+                        // 只有这一篇博客
+                        galaxyCategory.setBlogCount(1L);
+                    }
+                    galaxyCategoryService.save(galaxyCategory);
+                    // 获取新分类的id并赋值给galaxyBlog的categoryId
+                    galaxyCategory =
+                            galaxyCategoryService.getOne(
+                                    new QueryWrapper<GalaxyCategory>()
+                                            .eq("user_id", galaxyCategory.getUserId())
+                                            .eq("content", galaxyCategory.getContent())
+                            );
+                    galaxyBlog.setCategoryId(galaxyCategory.getId());
+                }
+            }
+
+        }
+
+        // 博客内容相关
         // id存在进入编辑，id不存在进入创建
-        if(galaxyBlog.getId() != null) {
+        if (galaxyBlog.getId() != null) {
             temp = galaxyBlogService.getById(galaxyBlog.getId());
 //            System.out.println(temp.getUserId());
 //            System.out.println(ShiroUtil.getProfile().getId());
@@ -218,19 +301,76 @@ public class GalaxyBlogController {
             temp = new GalaxyBlog();
             temp.setUserId(ShiroUtil.getProfile().getId());
         }
-
         // 防止前端乱传状态导致错误
-        if (galaxyBlog.getStatus().intValue()==BLOGSTATUS.DRAFT.status.intValue()) {
+        if (galaxyBlog.getStatus().intValue() == BLOGSTATUS.DRAFT.status.intValue()) {
             temp.setStatus(BLOGSTATUS.DRAFT.status.intValue());
-        } else if (galaxyBlog.getStatus().intValue()==BLOGSTATUS.PUBLIC.status.intValue()) {
+        } else if (galaxyBlog.getStatus().intValue() == BLOGSTATUS.PUBLIC.status.intValue()) {
             temp.setStatus(BLOGSTATUS.PUBLIC.status.intValue());
         } else {
             temp.setStatus(BLOGSTATUS.DRAFT.status.intValue());
         }
-
         // 第三个参数是省略的字段，不推荐添加
         BeanUtil.copyProperties(galaxyBlog, temp, "userId", "status");
         galaxyBlogService.saveOrUpdate(temp);
+
+
+        // 博客tag相关
+        // 获取博客id（保证新建博客也能获取到）
+        GalaxyBlog galaxyBlogNew;
+        if (galaxyBlog.getId() == null) {
+            galaxyBlogNew =
+                    galaxyBlogService.getOne(
+                            new QueryWrapper<GalaxyBlog>()
+                                    .eq("user_id", temp.getUserId())
+                                    .eq("category_id", temp.getCategoryId())
+                                    .eq("tag", temp.getTag())
+                                    .eq("title", temp.getTitle())
+                                    .eq("content_markdown", temp.getContentMarkdown())
+                                    .last("LIMIT 1")
+                    );
+        } else {
+            galaxyBlogNew = temp;
+        }
+
+        // 维护tag列表，优化版，还能保持数据库中tag顺序与blog.tag的顺序一致
+        List<GalaxyTag> blogOldTagList =
+                galaxyTagService.list(
+                        new QueryWrapper<GalaxyTag>()
+                                .eq("user_id", galaxyBlog.getUserId())
+                                .eq("blog_id", galaxyBlog.getId())
+                );
+        // 一定会返回一个数组
+        String[] blogNewTagNameList = galaxyBlog.getTag().split(",");
+        int oldIndex, newIndex;
+        for (oldIndex=0, newIndex=0; newIndex<blogNewTagNameList.length; ) {
+            // 是否越过旧tag列表的长度
+            if (oldIndex<blogOldTagList.size()) {
+                // 没有进行修改
+                if (blogOldTagList.get(oldIndex).getContent().equals(blogNewTagNameList[newIndex])) {
+                    ++oldIndex;
+                    ++newIndex;
+                } else {
+                    GalaxyTag galaxyTag = blogOldTagList.get(oldIndex);
+                    galaxyTag.setContent(blogNewTagNameList[newIndex]);
+                    galaxyTagService.saveOrUpdate(galaxyTag);
+                    ++oldIndex;
+                    ++newIndex;
+                }
+            } else {
+                // oldIndex越越界了直接想数据库中插入数据
+                GalaxyTag galaxyTag = new GalaxyTag();
+                galaxyTag.setUserId(galaxyBlogNew.getUserId());
+                galaxyTag.setBlogId(galaxyBlogNew.getId());
+                galaxyTag.setContent(blogNewTagNameList[newIndex]);
+                // 这里不设置tag的status状态，默认为1开启
+                galaxyTagService.saveOrUpdate(galaxyTag);
+                ++newIndex;
+            }
+        }
+        // 如果旧tag列表比新tag列表多
+        while(oldIndex<blogOldTagList.size()) {
+            galaxyTagService.removeById(blogOldTagList.get(oldIndex++));
+        }
 
         return ResponseResult.success(temp);
     }
@@ -252,4 +392,48 @@ public class GalaxyBlogController {
         return ResponseResult.failure("博客不存在");
     }
 
+    /**
+     * 增加博客点击量
+     * @return
+     */
+    @PutMapping("/blog/click/{id}")
+    public ResponseResult incrementclick(@PathVariable(name = "id") Long id) {
+        // 查找指定的博客
+        GalaxyBlog blog = galaxyBlogService.getById(id);
+        Assert.notNull(blog, "博客不存在");
+        // 增加点击量
+        blog.setClickCount(blog.getClickCount() + 1);
+        galaxyBlogService.updateById(blog);
+        return ResponseResult.success("增加点击量成功");
+    }
+
+    /**
+     * 增加博客点赞量
+     * @return
+     */
+    @PutMapping("/blog/like/{id}")
+    public ResponseResult incrementLike(@PathVariable(name = "id") Long id) {
+        // 查找指定的博客
+        GalaxyBlog blog = galaxyBlogService.getById(id);
+        Assert.notNull(blog, "博客不存在");
+        // 增加点赞量
+        blog.setLikeCount(blog.getLikeCount() + 1);
+        galaxyBlogService.updateById(blog);
+        return ResponseResult.success("增加点赞量成功");
+    }
+
+    /**
+     * 增加博客点赞量
+     * @return
+     */
+    @PutMapping("/blog/collect/{id}")
+    public ResponseResult incrementCollect(@PathVariable(name = "id") Long id) {
+        // 查找指定的博客
+        GalaxyBlog blog = galaxyBlogService.getById(id);
+        Assert.notNull(blog, "博客不存在");
+        // 增加点赞量
+        blog.setCollectCount(blog.getCollectCount() + 1);
+        galaxyBlogService.updateById(blog);
+        return ResponseResult.success("增加收藏量成功");
+    }
 }

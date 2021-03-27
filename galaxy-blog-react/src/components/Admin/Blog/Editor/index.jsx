@@ -64,7 +64,7 @@ const plugins = [
 
 export default React.forwardRef((props, ref) => (
   <TuiEditor
-    height="900px"
+    height="880px"
     previewStyle="vertical"
     initialEditType="markdown"
     language="zh-CN"

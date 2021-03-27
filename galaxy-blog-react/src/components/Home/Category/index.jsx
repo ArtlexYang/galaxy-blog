@@ -61,8 +61,13 @@ export default class Category extends Component {
           this.setState({ loading: false, treeData: JSON.parse(res.data.data) });
         },
         err => {
-          // 弹窗提示
-          message.error(err.response.data.message);
+          // 后端服务错误
+          if (err.response===undefined) {
+            message.error('连接服务器失败，请稍候重试');
+          } else {
+            // 弹窗提示
+            message.error(err.response.data.message);
+          }
         });
   }
 
@@ -86,8 +91,13 @@ export default class Category extends Component {
           });
         },
         err => {
-          // 弹窗提示
-          message.error(err.response.data.message);
+          // 后端服务错误
+          if (err.response===undefined) {
+            message.error('连接服务器失败，请稍候重试');
+          } else {
+            // 弹窗提示
+            message.error(err.response.data.message);
+          }
         });
   }
   paginationChange = (page, pageSize) => { this.getCategoryBlogList(page, this.state.categoryId) }
@@ -147,7 +157,7 @@ export default class Category extends Component {
                     style={{ marginRight: '30px' }}
                     defaultExpandParent
                     defaultExpandAll
-                    defaultSelectedKeys={['1']}
+                    defaultSelectedKeys={[this.state.treeData[0].key]}
                     treeData={treeData}
                     showLine
                     onSelect={(selectedKeys) => this.getCategoryBlogList(1, selectedKeys)}
@@ -157,7 +167,7 @@ export default class Category extends Component {
           </div>
           
           { ( this.state.total===null )
-            ? <Spin tip="导航栏加载中..." delay="100"/>
+            ? <Spin style={{ margin: '0px 164px' }} tip="导航栏加载中..." delay="100"/>
             : (<Pagination
                 style={{ margin: '64px -16px', textAlign: 'center' }}
                 onChange={this.paginationChange}
@@ -185,7 +195,7 @@ export default class Category extends Component {
                     <IconText icon={EyeOutlined} text={item.clickCount + "点击"} />,
                     <IconText icon={LikeOutlined} text={item.likeCount + "点赞"} />,
                     <IconText icon={StarOutlined} text={item.collectCount + "收藏"} />,
-                    <IconText icon={MessageOutlined} text={item.commentCount + "评论"} />,
+                    // <IconText icon={MessageOutlined} text={item.commentCount + "评论"} />,
                     <>{item.createTime.replace("T", " ")}</>,
                   ]}
                 >

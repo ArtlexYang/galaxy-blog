@@ -44,7 +44,12 @@ const NewCategoryForm = ({ newCategoryModalVisible, onCancel }) => {
         
       },
       err => {
-        message.error(err.response.data.message);
+        // 后端服务错误
+        if (err.response===undefined) {
+          message.error('保存失败，连接服务器失败，请稍候重试');
+        } else {
+          message.error(err.response.data.message);
+        }
       }
     )
   };
@@ -196,7 +201,12 @@ const EditCategoryForm = ({ editCategoryModalVisible, onCancel, selectedCategory
         }
       },
       err => {
-        message.error(err.response.data.message);
+        // 后端服务错误
+        if (err.response===undefined) {
+          message.error('保存失败，连接服务器失败，请稍候重试');
+        } else {
+          message.error(err.response.data.message);
+        }
       }
     )
   };
@@ -381,28 +391,20 @@ export default class Category extends Component {
           // console.log(res.data.data.records)
         },
         err => {
-          // 弹窗提示
-          message.error(err.response.data.message);
-          // token失效了退出登录
-          if (err.response.data.message==="token已失效，请重新登录") {
-            store.dispatch(delUser())
+          // 后端服务错误
+          if (err.response===undefined) {
+            message.error('连接服务器失败，请稍候重试');
+          } else {
+            // 弹窗提示
+            message.error(err.response.data.message);
+            // token失效了退出登录
+            if (err.response.data.message==="token已失效，请重新登录") {
+              store.dispatch(delUser())
+            }
           }
         });
   }
 
-  // 新建分类
-  newCategory = () => {
-    // <0表示是新建模式，>=0都是编辑正常博客
-    window.open('about:blank').location.href=`/admin/blog/edit/-1`
-  }
-  // 编辑分类
-  editCategory = (blogId) => {
-    window.open('about:blank').location.href=`/admin/blog/edit/${blogId}`
-  }
-  // 浏览分类
-  openCategoryBolgList = (blogId) => {
-    window.open('about:blank').location.href=`/home/blog/${blogId}`
-  }
   // 删除分类（只需要id）
   deleteCategory = async (category) => {
     console.log(category)
@@ -415,12 +417,14 @@ export default class Category extends Component {
         }
       },
       err => {
-        message.error("无权限删除！");
+        // 后端服务错误
+        if (err.response===undefined) {
+          message.error('连接服务器失败，请稍候重试');
+        } else {
+          message.error("无权限删除！");
+        }
       }
-    ).catch(
-      err => {
-        message.error(err.response.data.message);
-    })
+    )
     // 刷新一下（重新获取一下数据就好）
     this.getPage(this.state.currentPage)
   }
@@ -492,13 +496,13 @@ export default class Category extends Component {
                       okText="确认"
                       cancelText="取消"
                     >
-                      <Link>删除</Link>
+                      <Link>删除分类</Link>
                     </Popconfirm>,
                     <div>创建时间：{item.createTime.replace("T", " ")}</div>]}
                 >
                   <Skeleton loading={item.loading} active>
                     <List.Item.Meta
-                      title={<Link onClick={() => this.openCategoryBlogList(item.id)}>{item.content}</Link>}
+                      title={<Link onClick={() => this.openCategoryBlogList(item.id)}>{item.id + "." + item.content}</Link>}
                       description={item.blogCount + " [篇] 公开博文"}
                     />
                   </Skeleton>

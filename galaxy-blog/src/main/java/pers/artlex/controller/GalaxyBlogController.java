@@ -229,7 +229,11 @@ public class GalaxyBlogController {
                                 .eq("content", galaxyBlog.getCategoryContent()));
         // 该博客之前是否有分类（没有分类为null）
         // 搜索为null说明修改了分类，没有修改就不用对分类进行同步
-        if (galaxyCategory == null) {
+        if (galaxyCategory == null
+                && (
+                        (galaxyBlog.getCategoryId()!=null && !equals(galaxyBlog.getCategoryId()))
+                        ||
+                        (galaxyBlog.getCategoryContent()!=null && !equals(galaxyBlog.getCategoryContent())))) {
             // 修改了就找到修改前的分类对象
             galaxyCategory =
                     galaxyCategoryService.getOne(
@@ -243,8 +247,8 @@ public class GalaxyBlogController {
                 galaxyCategoryService.updateById(galaxyCategory);
             }
 
-            // 新分类是无分类的话
-            if (galaxyBlog.getCategoryContent() != "") {
+            // 新分类不是是null/""的话
+            if (galaxyBlog.getCategoryContent() != null && galaxyBlog.getCategoryContent() != "") {
                 // 找到修改后的分类对象
                 galaxyCategory =
                         galaxyCategoryService.getOne(
@@ -265,8 +269,7 @@ public class GalaxyBlogController {
                     galaxyCategory = new GalaxyCategory();
                     galaxyCategory.setUserId(galaxyBlog.getUserId());
                     galaxyCategory.setContent(galaxyBlog.getCategoryContent());
-                    // 默认不作为精选显示
-                    galaxyCategory.setStatus(0);
+                    galaxyCategory.setStatus(1);
                     // 发布文章才设为1，不然就用默认的0
                     if (galaxyBlog.getStatus() == 1) {
                         // 只有这一篇博客
@@ -285,6 +288,7 @@ public class GalaxyBlogController {
             }
 
         }
+
 
         // 博客内容相关
         // id存在进入编辑，id不存在进入创建
@@ -311,36 +315,46 @@ public class GalaxyBlogController {
         }
         // 第三个参数是省略的字段，不推荐添加
         BeanUtil.copyProperties(galaxyBlog, temp, "userId", "status");
+        // temp的id会自动更新
         galaxyBlogService.saveOrUpdate(temp);
 
 
         // 博客tag相关
         // 获取博客id（保证新建博客也能获取到）
-        GalaxyBlog galaxyBlogNew;
-        if (galaxyBlog.getId() == null) {
-            galaxyBlogNew =
-                    galaxyBlogService.getOne(
-                            new QueryWrapper<GalaxyBlog>()
-                                    .eq("user_id", temp.getUserId())
-                                    .eq("category_id", temp.getCategoryId())
-                                    .eq("tag", temp.getTag())
-                                    .eq("title", temp.getTitle())
-                                    .eq("content_markdown", temp.getContentMarkdown())
-                                    .last("LIMIT 1")
-                    );
-        } else {
-            galaxyBlogNew = temp;
-        }
+//        GalaxyBlog galaxyBlogNew;
+//        if (galaxyBlog.getId() == null) {
+//            System.out.println(temp);
+//            galaxyBlogNew =
+//                    galaxyBlogService.getOne(
+//                            new QueryWrapper<GalaxyBlog>()
+//                                    .eq("user_id", temp.getUserId())
+//                                    .eq("title", temp.getTitle())
+//                                    .eq("content_markdown", temp.getContentMarkdown())
+//                                    .eq("category_content", temp.getCategoryContent())
+//                                    .eq("tag", temp.getTag())
+//                                    .last("LIMIT 1")
+//                    );
+//        } else {
+//            galaxyBlogNew = temp;
+//        }
+//
+//        System.out.println(galaxyBlogNew);
 
         // 维护tag列表，优化版，还能保持数据库中tag顺序与blog.tag的顺序一致
         List<GalaxyTag> blogOldTagList =
                 galaxyTagService.list(
                         new QueryWrapper<GalaxyTag>()
-                                .eq("user_id", galaxyBlog.getUserId())
-                                .eq("blog_id", galaxyBlog.getId())
+                                .eq("user_id", temp.getUserId())
+                                .eq("blog_id", temp.getId())
                 );
+        String[] blogNewTagNameList;
         // 一定会返回一个数组
-        String[] blogNewTagNameList = galaxyBlog.getTag().split(",");
+        if (galaxyBlog.getTag()!=null) {
+            blogNewTagNameList = galaxyBlog.getTag().split(",");
+        } else {
+            blogNewTagNameList = new String[0];
+        }
+
         int oldIndex, newIndex;
         for (oldIndex=0, newIndex=0; newIndex<blogNewTagNameList.length; ) {
             // 是否越过旧tag列表的长度
@@ -357,12 +371,12 @@ public class GalaxyBlogController {
                     ++newIndex;
                 }
             } else {
-                // oldIndex越越界了直接想数据库中插入数据
+                // oldIndex越越界了直接向数据库中插入数据
                 GalaxyTag galaxyTag = new GalaxyTag();
-                galaxyTag.setUserId(galaxyBlogNew.getUserId());
-                galaxyTag.setBlogId(galaxyBlogNew.getId());
+                galaxyTag.setUserId(temp.getUserId());
+                galaxyTag.setBlogId(temp.getId());
+                galaxyTag.setStatus(1);
                 galaxyTag.setContent(blogNewTagNameList[newIndex]);
-                // 这里不设置tag的status状态，默认为1开启
                 galaxyTagService.saveOrUpdate(galaxyTag);
                 ++newIndex;
             }
@@ -384,12 +398,27 @@ public class GalaxyBlogController {
     @RequiresAuthentication
     @PostMapping("/blog/delete")
     public ResponseResult delete(@Validated @RequestBody GalaxyBlog galaxyBlog) {
-        if (galaxyBlog.getId() != null) {
-            if (galaxyBlogService.remove(new QueryWrapper<GalaxyBlog>().eq("id", galaxyBlog.getId()))) {
-                return ResponseResult.success(null);
+        // 删除博客
+        if (galaxyBlog.getId() == null
+                || galaxyBlog.getId() < 0
+                || !galaxyBlogService.remove(new QueryWrapper<GalaxyBlog>().eq("id", galaxyBlog.getId()))) {
+           return ResponseResult.failure("删除博客失败，博客不存在");
+        }
+        // 维护分类
+        GalaxyCategory galaxyCategory = galaxyCategoryService.getOne(new QueryWrapper<GalaxyCategory>().eq("id", galaxyBlog.getCategoryId()).last("LIMIT 1"));
+        if (galaxyCategory != null && BLOGSTATUS.PUBLIC.status.equals(galaxyBlog.getStatus())) {
+            galaxyCategory.setBlogCount(galaxyCategory.getBlogCount() - 1);
+            if (!galaxyCategoryService.updateById(galaxyCategory)) {
+                return ResponseResult.failure("分类文章数减一失败");
             }
         }
-        return ResponseResult.failure("博客不存在");
+        // 维护标签（前面已经判断过博客id合法性，这里就不用再判断了）
+        if (!galaxyTagService.remove(new QueryWrapper<GalaxyTag>().eq("blog_id", galaxyBlog.getId()))) {
+            return ResponseResult.failure("删除标签失败");
+        }
+
+
+        return ResponseResult.success("删除博客成功");
     }
 
     /**

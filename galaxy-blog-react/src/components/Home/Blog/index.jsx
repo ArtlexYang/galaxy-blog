@@ -66,8 +66,13 @@ export default class Blog extends Component {
           this.setState({ loading: false, statistics: JSON.parse(res.data.data) });
         },
         err => {
-          // 弹窗提示
-          message.error(err.response.data.message);
+          // 后端服务错误
+          if (err.response===undefined) {
+            message.error('连接服务器失败，请稍候重试');
+          } else {
+            // 弹窗提示
+            message.error(err.response.data.message);
+          }
         });
   }
 
@@ -91,8 +96,13 @@ export default class Blog extends Component {
           });
         },
         err => {
-          // 弹窗提示
-          message.error(err.response.data.message);
+          // 后端服务错误
+          if (err.response===undefined) {
+            message.error('连接服务器失败，请稍候重试');
+          } else {
+            // 弹窗提示
+            message.error(err.response.data.message);
+          }
         });
   }
   paginationChange = (page, pageSize) => { this.getPage(page) }
@@ -106,7 +116,7 @@ export default class Blog extends Component {
   }
 
   render() {
-    const { initLoading, loading, total, statistics, blogList, pageSize } = this.state;
+    const { initLoading, loading, total, statistics, blogList, currentPage, pageSize } = this.state;
     return (
       <>
         {/* 防止刷新错位 */}
@@ -147,26 +157,32 @@ export default class Blog extends Component {
                         value={total}
                         prefix={<FileTextOutlined />}
                       />
+                      {/* <Statistic
+                        style={{ display: 'inline-block', minWidth:'100px', maxWidth:'160px' }}
+                        title="总点赞数"
+                        value={statistics.blogStatisticsPublic[0].likeCount}
+                        prefix={<LikeOutlined />}
+                      /> */}
+                    </Space>
+                    <Space>
                       <Statistic
                         style={{ display: 'inline-block', minWidth:'100px', maxWidth:'160px' }}
                         title="总点赞数"
                         value={statistics.blogStatisticsPublic[0].likeCount}
                         prefix={<LikeOutlined />}
                       />
-                    </Space>
-                    <Space>
                       <Statistic
                         style={{ display: 'inline-block', minWidth:'100px', maxWidth:'160px' }}
                         title="总收藏数"
                         value={statistics.blogStatisticsPublic[0].collectCount}
                         prefix={<StarOutlined />}
                       />
-                      <Statistic
+                      {/* <Statistic
                         style={{ display: 'inline-block', minWidth:'100px', maxWidth:'160px' }}
                         title="总评论数"
                         value={statistics.blogStatisticsPublic[0].commentCount}
                         prefix={<MessageOutlined />}
-                      />
+                      /> */}
                     </Space>
                     <Space>
                       <Statistic
@@ -197,7 +213,7 @@ export default class Blog extends Component {
               textAlign: 'center'
             }}
           >
-            精选分类<br/><br/>
+            热门分类<br/><br/>
             <Space wrap>
               {( statistics===null || statistics===undefined)
               ? '分类列表加载中...'
@@ -230,7 +246,7 @@ export default class Blog extends Component {
               textAlign: 'center'
             }}
           >
-          精选标签<br/><br/>
+          热门标签<br/><br/>
             <Space wrap>
               {( statistics===null || statistics===undefined)
               ? '标签列表加载中...'
@@ -250,13 +266,7 @@ export default class Blog extends Component {
               }
             </Space>
           </div>
-          <Pagination
-            style={{ margin: '64px -16px', textAlign: 'center' }}
-            onChange={this.paginationChange}
-            // showSizeChanger
-            showQuickJumper
-            total={total}
-          />
+          
         </div>
 
 
@@ -274,7 +284,7 @@ export default class Blog extends Component {
                     <IconText icon={EyeOutlined} text={item.clickCount + "点击"} />,
                     <IconText icon={LikeOutlined} text={item.likeCount + "点赞"} />,
                     <IconText icon={StarOutlined} text={item.collectCount + "收藏"} />,
-                    <IconText icon={MessageOutlined} text={item.commentCount + "评论"} />,
+                    // <IconText icon={MessageOutlined} text={item.commentCount + "评论"} />,
                     <>{item.createTime.replace("T", " ")}</>,
                   ]}
                 >
@@ -345,6 +355,15 @@ export default class Blog extends Component {
                 </List.Item>
               </div>
             )}
+            
+          />
+          <Pagination
+            style={{ margin: '64px -16px', textAlign: 'center' }}
+            onChange={this.paginationChange}
+            // showSizeChanger
+            showQuickJumper
+            total={total}
+            current={currentPage}
           />
         </div>
       </>

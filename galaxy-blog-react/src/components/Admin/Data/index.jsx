@@ -1,6 +1,12 @@
 import React, { Component } from 'react'
 import { Route, Link } from 'react-router-dom'
 
+// 引入redux相关文件
+import store from '../../../redux/store'
+import {
+  delUser,
+} from '../../../redux/actions/login.js'
+
 import {
   Pagination,
   message,
@@ -37,6 +43,7 @@ export default class Data extends Component {
       initLoading: true,
       loading: false,
       statistics: null,
+      statisticsAll: null,
       clickCount: 0,
       likeCount: 0,
       collectCount: 0,
@@ -50,6 +57,9 @@ export default class Data extends Component {
     // 获取数据
     this.getPage(1)
     this.getMyselfStatistics()
+    if (JSON.parse(sessionStorage.getItem('userInfo')).status===127) {
+      this.getAllStatistics()
+    }
   }
 
   getAllStatistics = async () => {
@@ -61,11 +71,16 @@ export default class Data extends Component {
       .then(
         res => {
           // 获取数据
-          this.setState({ loading: false, statistics: JSON.parse(res.data.data) });
+          this.setState({ loading: false, statisticsAll: JSON.parse(res.data.data) });
         },
         err => {
-          // 弹窗提示
-          message.error(err.response.data.message);
+          // 网络错误
+          if (err.response===undefined) {
+            message.error('连接服务器失败，请稍候重试');
+          } else {
+            // 弹窗提示
+            message.error(err.response.data.message);
+          }
         });
   }
 
@@ -81,8 +96,13 @@ export default class Data extends Component {
           this.setState({ loading: false, statistics: JSON.parse(res.data.data) });
         },
         err => {
-          // 弹窗提示
-          message.error(err.response.data.message);
+          // 网络错误
+          if (err.response===undefined) {
+            message.error('连接服务器失败，请稍候重试');
+          } else {
+            // 弹窗提示
+            message.error(err.response.data.message);
+          }
         });
   }
 
@@ -105,13 +125,22 @@ export default class Data extends Component {
           });
         },
         err => {
-          // 弹窗提示
-          message.error(err.response.data.message);
+          // 网络错误
+          if (err.response===undefined) {
+            message.error('连接服务器失败，请稍候重试');
+          } else {
+            // 弹窗提示
+            message.error(err.response.data.message);
+            // token失效了退出登录
+            if (err.response.data.message==="token已失效，请重新登录") {
+              store.dispatch(delUser())
+            }
+          }
         });
   }
 
   render() {
-    const { total, statistics } = this.state;
+    const { total, statistics, statisticsAll } = this.state;
     return (
       <div>
         <div
@@ -138,17 +167,17 @@ export default class Data extends Component {
             textAlign: 'center'
           }}
         >
-          { ( statistics===null || statistics===undefined)
+          { ( statisticsAll===null || statisticsAll===undefined)
             ? '统计列表加载中...'
             : (<>
-                <Space style={{ marginTop: '5%', marginLeft: '-5%' }} align='center' direction='vertical'>
+                <Space style={{ marginTop: '2%', marginLeft: '-5%' }} align='center' direction='vertical'>
                   <div
                     style={{
                       fontSize: '1.5em',
                       fontWeight: 'bold',
                     }}
                   >
-                    当前用户的资料统计
+                    所有用户的数据统计（管理员）
                   </div>
                   <Space style={{ margin: '32px' }} align='center' direction='horizontal'>
                     <Statistic
@@ -160,12 +189,74 @@ export default class Data extends Component {
                     <Statistic
                       style={{ display: 'inline-block', minWidth:'150px', maxWidth:'200px' }}
                       title="总分类数"
-                      value={this.state.statistics.categoryList.length}
+                      value={this.state.statisticsAll.categoryList.length}
                       prefix={<BarsOutlined />}
                     />
                     <Statistic
                       style={{ display: 'inline-block', minWidth:'150px', maxWidth:'200px' }}
                       title="总标签数"
+                      value={this.state.statisticsAll.tagList.length}
+                      prefix={<DeploymentUnitOutlined />}
+                    />
+                  </Space>
+                  <Space style={{ margin: '32px' }} align='center' direction='horizontal' size='large'>
+                    <Statistic
+                      style={{ display: 'inline-block', minWidth:'150px', maxWidth:'200px' }}
+                      title="公开博客点击数"
+                      value={statisticsAll.blogStatisticsPublic[0].clickCount}
+                      prefix={<EyeOutlined />}
+                    />
+                    <Statistic
+                      style={{ display: 'inline-block', minWidth:'150px', maxWidth:'200px' }}
+                      title="公开博客点赞数"
+                      value={statisticsAll.blogStatisticsPublic[0].likeCount}
+                      prefix={<LikeOutlined />}
+                    />
+                    <Statistic
+                      style={{ display: 'inline-block', minWidth:'150px', maxWidth:'200px' }}
+                      title="公开博客收藏数"
+                      value={statisticsAll.blogStatisticsPublic[0].collectCount}
+                      prefix={<StarOutlined />}
+                    />
+                    <Statistic
+                      style={{ display: 'inline-block', minWidth:'150px', maxWidth:'200px' }}
+                      title="公开博客评论数"
+                      value={statisticsAll.blogStatisticsPublic[0].commentCount}
+                      prefix={<MessageOutlined />}
+                    />
+                  </Space>
+                </Space>
+                <br/>
+              </>
+            )}
+          { ( statistics===null || statistics===undefined)
+            ? '统计列表加载中...'
+            : (<>
+                <Space style={{ marginTop: '1%', marginLeft: '-5%' }} align='center' direction='vertical'>
+                  <div
+                    style={{
+                      fontSize: '1.5em',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    当前用户的数据统计
+                  </div>
+                  <Space style={{ margin: '32px' }} align='center' direction='horizontal'>
+                    <Statistic
+                      style={{ display: 'inline-block', minWidth:'150px', maxWidth:'200px' }}
+                      title="当前用户总博客数"
+                      value={total}
+                      prefix={<FileTextOutlined />}
+                    />
+                    <Statistic
+                      style={{ display: 'inline-block', minWidth:'150px', maxWidth:'200px' }}
+                      title="当前用户总分类数"
+                      value={this.state.statistics.categoryList.length}
+                      prefix={<BarsOutlined />}
+                    />
+                    <Statistic
+                      style={{ display: 'inline-block', minWidth:'150px', maxWidth:'200px' }}
+                      title="当前用户总标签数"
                       value={this.state.statistics.tagList.length}
                       prefix={<DeploymentUnitOutlined />}
                     />
@@ -173,25 +264,25 @@ export default class Data extends Component {
                   <Space style={{ margin: '32px' }} align='center' direction='horizontal' size='large'>
                     <Statistic
                       style={{ display: 'inline-block', minWidth:'150px', maxWidth:'200px' }}
-                      title="全部公开博客的点击数"
+                      title="当前用户公开博客点击数"
                       value={statistics.blogStatisticsPublic[0].clickCount}
                       prefix={<EyeOutlined />}
                     />
                     <Statistic
                       style={{ display: 'inline-block', minWidth:'150px', maxWidth:'200px' }}
-                      title="全部公开博客的点赞数"
+                      title="当前用户公开博客点赞数"
                       value={statistics.blogStatisticsPublic[0].likeCount}
                       prefix={<LikeOutlined />}
                     />
                     <Statistic
                       style={{ display: 'inline-block', minWidth:'150px', maxWidth:'200px' }}
-                      title="全部公开博客的收藏数"
+                      title="当前用户公开博客收藏数"
                       value={statistics.blogStatisticsPublic[0].collectCount}
                       prefix={<StarOutlined />}
                     />
                     <Statistic
                       style={{ display: 'inline-block', minWidth:'150px', maxWidth:'200px' }}
-                      title="全部公开博客的评论数"
+                      title="当前用户公开博客评论数"
                       value={statistics.blogStatisticsPublic[0].commentCount}
                       prefix={<MessageOutlined />}
                     />

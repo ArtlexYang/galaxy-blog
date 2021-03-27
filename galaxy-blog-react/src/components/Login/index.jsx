@@ -14,7 +14,6 @@ import { Form, Input, Button, Checkbox, message } from 'antd';
 
 // 使用类类读取样式，防止不同组件的重名样式冲突
 import styles from './index.module.css';
-import backgroundJS from './backgroundJS'
 
 /**
  * 本组件用于后台登录
@@ -88,7 +87,7 @@ class Login extends Component {
       },
     err => {
       // 弹窗提示
-      message.error('服务器连接失败，请稍后重试！')
+      message.error('连接服务器失败，请稍候重试')
     }
     );
   };

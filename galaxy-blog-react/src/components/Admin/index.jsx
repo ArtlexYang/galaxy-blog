@@ -69,7 +69,7 @@ export default class Admin extends Component {
             <font color="#fff">Galaxy Blog</font>
           </div>
 
-          <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline">
+          <Menu theme="dark" defaultSelectedKeys='1' mode="inline">
 
             <Menu.Item key="1" icon={<PieChartOutlined />}>
               <Link to="/admin/data">

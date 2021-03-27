@@ -66,8 +66,13 @@ export default class Tag extends Component {
           }
         },
         err => {
-          // 弹窗提示
-          message.error(err.response.data.message);
+          // 后端服务错误
+          if (err.response===undefined) {
+            message.error('连接服务器失败，请稍候重试');
+          } else {
+            // 弹窗提示
+            message.error(err.response.data.message);
+          }
         });
   }
 
@@ -92,8 +97,13 @@ export default class Tag extends Component {
           });
         },
         err => {
-          // 弹窗提示
-          message.error(err.response.data.message);
+          // 后端服务错误
+          if (err.response===undefined) {
+            message.error('连接服务器失败，请稍候重试');
+          } else {
+            // 弹窗提示
+            message.error(err.response.data.message);
+          }
         });
   }
   paginationChange = (page, pageSize) => { this.getTagBlogList(page, this.state.tagContent) }
@@ -208,7 +218,7 @@ export default class Tag extends Component {
                     <IconText icon={EyeOutlined} text={item.clickCount + "点击"} />,
                     <IconText icon={LikeOutlined} text={item.likeCount + "点赞"} />,
                     <IconText icon={StarOutlined} text={item.collectCount + "收藏"} />,
-                    <IconText icon={MessageOutlined} text={item.commentCount + "评论"} />,
+                    // <IconText icon={MessageOutlined} text={item.commentCount + "评论"} />,
                     <>{item.createTime.replace("T", " ")}</>,
                   ]}
                 >

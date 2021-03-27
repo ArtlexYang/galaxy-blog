@@ -48,8 +48,13 @@ export default class GetBolgDetail extends Component {
           this.setState({ blog })
       },
       err => {
-        // 弹窗提示
-        message.error(err.response.data.message);
+        // 网络错误
+        if (err.response===undefined) {
+          message.error('连接服务器失败，请稍候重试');
+        } else {
+          // 弹窗提示
+          message.error(err.response.data.message);
+        }
       }
     );
   }
@@ -92,7 +97,7 @@ export default class GetBolgDetail extends Component {
 
       <>
         {( this.state.blog===null )
-          ? <Spin tip="博文加载中..."/>
+          ? <Spin style={{ margin: '200px 50%' }} tip="博文加载中"/>
           : (
             <>
               <div
@@ -154,7 +159,7 @@ export default class GetBolgDetail extends Component {
                   <br/>
                     创建时间：{blog.createTime.replace("T", " ")}
                   <br/>
-                    最近更新时间：{blog.updateTime.replace("T", " ")}
+                    更新时间：{blog.updateTime.replace("T", " ")}
                   <br/><br/>
                   <Button onClick={this.incrementLike} shape="round" icon={<LikeOutlined />} disabled={isLike}>点赞</Button>&emsp;
                   <Button onClick={this.incrementCollect} shape="round" icon={<StarOutlined />} disabled={isCollect}>收藏</Button>
@@ -215,11 +220,19 @@ export default class GetBolgDetail extends Component {
                         </Tag>
                       )
                     : (
-                        <Tag style={{ margin: '0px', borderRadius: '20px' }} color={this.randomColor()}>
-                            <a>
-                              {blog.tag}
-                            </a>
-                        </Tag>
+                      <Space wrap>
+                        {blog.tag.split(",").map(
+                          (tag) => {
+                            return (
+                              <Tag style={{ borderRadius: '20px' }} key={tag} color={this.randomColor()}>
+                                <a>
+                                  {tag}
+                                </a>
+                              </Tag>
+                            )
+                          }
+                        )}
+                      </Space>
                       )
                   }
                 </div>

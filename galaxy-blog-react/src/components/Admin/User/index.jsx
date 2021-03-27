@@ -43,7 +43,17 @@ const EditUserForm = ({ editUserModalVisible, onCancel }) => {
         }
       },
       err => {
-        message.error(err.response.data.message);
+        // 后端服务错误
+        if (err.response===undefined) {
+          message.error('连接服务器失败，请稍候重试');
+        } else {
+          // 弹窗提示
+          message.error(err.response.data.message);
+          // token失效了退出登录
+          if (err.response.data.message==="token已失效，请重新登录") {
+            store.dispatch(delUser())
+          }
+        }
       }
     )
   };
@@ -60,7 +70,7 @@ const EditUserForm = ({ editUserModalVisible, onCancel }) => {
 
   return (
     <Modal
-      title="修改分类"
+      title="修改用户信息"
       visible={editUserModalVisible}
       onOk={onOk}
       onCancel={onCancel}
@@ -184,7 +194,17 @@ const EditUserPasswordForm = ({ editUserPasswordModalVisible, onCancel }) => {
         }
       },
       err => {
-        message.error(err.response.data.message);
+        // 后端服务错误
+        if (err.response===undefined) {
+          message.error('连接服务器失败，请稍候重试');
+        } else {
+          // 弹窗提示
+          message.error(err.response.data.message);
+          // token失效了退出登录
+          if (err.response.data.message==="token已失效，请重新登录") {
+            store.dispatch(delUser())
+          }
+        }
       }
     )
   };
@@ -200,7 +220,7 @@ const EditUserPasswordForm = ({ editUserPasswordModalVisible, onCancel }) => {
 
   return (
     <Modal
-      title="修改分类"
+      title="修改密码"
       visible={editUserPasswordModalVisible}
       onOk={onOk}
       onCancel={onCancel}
@@ -298,16 +318,21 @@ export default class User extends Component {
     await axios.get('http://localhost:8081/logout').then(
       res => {
         store.dispatch(delUser())
-      // 跳转到登录页面
-      this.props.history.replace('/login');
-      message.success('安全退出成功！')
+        // 跳转到登录页面
+        this.props.history.replace('/login');
+        message.success('安全退出成功！')
       },
       err => {
-        // 弹窗提示
-        message.error(err.response.data.message);
-        // token失效了退出登录
-        if (err.response.data.message==="token已失效，请重新登录") {
-          store.dispatch(delUser())
+        // 后端服务错误
+        if (err.response===undefined) {
+          message.error('连接服务器失败，请稍候重试');
+        } else {
+          // 弹窗提示
+          message.error(err.response.data.message);
+          // token失效了退出登录
+          if (err.response.data.message==="token已失效，请重新登录") {
+            store.dispatch(delUser())
+          }
         }
       }
     );
@@ -325,7 +350,7 @@ export default class User extends Component {
   render() {
     return (
       <>
-        <Button type="primary" onClick={this.showEditUserModal}>修改个人信息</Button> &nbsp;
+        <Button type="primary" onClick={this.showEditUserModal}>修改用户信息</Button> &nbsp;
         <Button type="primary" onClick={this.showEditUserPasswordModal}>修改密码</Button> &nbsp;
         <Button type="primary" onClick={this.logout}>退出登录</Button>
         <EditUserForm 

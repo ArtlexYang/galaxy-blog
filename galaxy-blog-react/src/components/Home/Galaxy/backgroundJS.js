@@ -118,8 +118,8 @@ function drawLine(p1, p2, deg) {
     if (dis2 < 2 * LINE_LENGTH) {
         if (dis2 > LINE_LENGTH) {
             if (p1 === p0) {
-                p2.x += dx * 0.03;
-                p2.y += dy * 0.03;
+                p2.x += 0;  // 0表示鼠标没有吸引，否则使用dx*0.01
+                p2.y += 0;  // 0表示鼠标没有吸引，否则使用dy*0.01
             } else return;
         }
         var t = (1.05 - dis2 / LINE_LENGTH) * 0.2 * deg;

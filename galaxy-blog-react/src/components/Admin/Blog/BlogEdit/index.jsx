@@ -42,10 +42,10 @@ const DescriptionModalForm = ({ descriptionModalVisible, onCancel, description }
               message: '描述字数过多!',
               max: 500
             },
-            {
-              message: '存在非法字符!',
-              pattern: new RegExp(/^[\w\u4e00-\u9fa5]+$/gi),  // 匹配中文 数字 字母 下划线
-            },
+            // {
+            //   message: '存在非法字符!',
+            //   pattern: new RegExp(/^[\w\u4e00-\u9fa5]+$/gi),  // 匹配中文 数字 字母 下划线
+            // },
           ]}
         >
           <TextArea
@@ -159,17 +159,22 @@ const TagModalForm = ({ tagModalVisible, onCancel, tag, tagList }) => {
       checked
       ? [...selectedTags, tagContent]
       : selectedTags.filter(t => t !== tagContent);
-    setSelectedTags(nextSelectedTags);
 
+    // 检查标签数
+    if (nextSelectedTags.toString().split(",").length > 5) {
+      message.error('文章标签不能超过五个')
+      return
+    }
+    // 设置标签高亮
+    setSelectedTags(nextSelectedTags);
     // 遍历拼接
     const tagFormItem = (nextSelectedTags.map(tagObj => {return tagObj.split(" ")[0]})).toString()
-    
     // 同步到输入框
     form.setFieldsValue({ tagFormItem: tagFormItem })
   }
   
   return (
-    <Modal title="标签（最多五个）" visible={tagModalVisible} onOk={onOk} onCancel={onCancel} afterClose={afterClose}>
+    <Modal title="标签（使用英文逗号分隔，最多五个）" visible={tagModalVisible} onOk={onOk} onCancel={onCancel} afterClose={afterClose}>
       <Form 
         form={form} 
         layout="vertical" 
@@ -182,9 +187,17 @@ const TagModalForm = ({ tagModalVisible, onCancel, tag, tagList }) => {
           name="tagFormItem"
           rules={[
             {
-              message: '存在非法字符!',
+              message: '存在非法字符',
               pattern: new RegExp(/^[\w\u4e00-\u9fa5 +| ,]+$/gi),  // 匹配中文 数字 字母 下划线 英文逗号
             },
+            () => ({
+              validator(_, value) {
+                if (!value || value.split(",").length<=5) {
+                  return Promise.resolve();
+                }
+                return Promise.reject(new Error('文章标签不能超过五个'));
+              },
+            }),
           ]}
         >
           <TextArea
@@ -303,6 +316,10 @@ export default class BlogEdit extends Component {
           this.setState({editor: this.editorRef.current.getInstance()})
         },
         err => {
+          // 后端服务错误
+          if (err.response===undefined) {
+            message.error('连接服务器失败，请稍候重试');
+          } else {
             // 弹窗提示
             message.error('获取博客失败，请刷新重试！');
             this.setState({ loadingWords: '获取博客失败，请刷新重试！' })
@@ -310,13 +327,14 @@ export default class BlogEdit extends Component {
             if (err.response.data.message==="token已失效，请重新登录") {
               store.dispatch(delUser())
             }
+          }
         }
     );
   }
 
   getCategoryList = async () => {
     await axios
-      .get('http://localhost:8081/categoryList?isAdmin=true')
+      .get('http://localhost:8081/categoryListTree')
       .then(
         res => {
           this.setState({ categoryList: JSON.parse(res.data.data) })
@@ -324,12 +342,17 @@ export default class BlogEdit extends Component {
           // console.log(res.data.data)
         },
         err => {
+          // 后端服务错误
+          if (err.response===undefined) {
+            message.error('连接服务器失败，请稍候重试');
+          } else {
             // 弹窗提示
             message.error('获取分类列表失败，请刷新重试！');
             // token失效了退出登录
             if (err.response.data.message==="token已失效，请重新登录") {
               store.dispatch(delUser())
             }
+          }
         }
     );
   }
@@ -344,12 +367,17 @@ export default class BlogEdit extends Component {
           // console.log(res.data.data)
         },
         err => {
+          // 后端服务错误
+          if (err.response===undefined) {
+            message.error('连接服务器失败，请稍候重试');
+          } else {
             // 弹窗提示
             message.error('获取标签列表失败，请刷新重试！');
             // token失效了退出登录
             if (err.response.data.message==="token已失效，请重新登录") {
               store.dispatch(delUser())
             }
+          }
         }
     );
   }
@@ -406,6 +434,8 @@ export default class BlogEdit extends Component {
       },
     })
 
+    console.log(this.blog)
+
     // 保存请求
     await axios.post('http://localhost:8081/blog/edit', this.blog).then(
       res => {
@@ -417,7 +447,12 @@ export default class BlogEdit extends Component {
         this.getTagList()
       },
       err => {
-        message.error(err.response.data.message);
+        // 后端服务错误
+        if (err.response===undefined) {
+          message.error('保存失败，连接服务器失败，请稍候重试');
+        } else {
+          message.error(err.response.data.message);
+        }
       }
     )
   }
@@ -426,8 +461,10 @@ export default class BlogEdit extends Component {
     return (
       <>
         {/* 判断博客内容有没有加载完成，完成了显示内容，未完成显示加载动画 */}
+        {/* style={{ position: 'fixed', top: '0px', buttom: '0px', left: '0px', right: '0px', backgroundColor: 'white' }} */}
         {(this.props.match.params.blogId < 0 || this.state.blog!==null)
-        ? <div style={{ backgroundColor: 'white' }}>
+        ? 
+          <div style={{ position: 'fixed', top: '0px', bottom: '0px', left: '0px', right: '0px', backgroundColor: 'white' }}>
             <Form.Provider
               // 子表单提交时触发（name:子表单名; values:子表单属性的keys:values; forms:子表单的form对象,包含对象的一些操作）
               onFormFinish={(name, { values, forms }) => {
@@ -443,20 +480,22 @@ export default class BlogEdit extends Component {
               }}
             >
               <Form
-                    layout="vertical"
-                    colon="false"
-                    name="basic"
-                    initialValues={{
-                      title: 
-                      this.state.blog!==null && this.state.blog.title!==null
-                        ? this.state.blog.title
-                        : ""
-                    }}
-                    onFinish={this.onFinish}
-                    onFinishFailed={this.onFinishFailed}
+                style={{ position: 'fixed', top: '16px', left: '16px', right: '16px' }}
+                layout="vertical"
+                colon="false"
+                name="basic"
+                initialValues={{
+                  title: 
+                  this.state.blog!==null && this.state.blog.title!==null
+                    ? this.state.blog.title
+                    : ""
+                }}
+                onFinish={this.onFinish}
+                onFinishFailed={this.onFinishFailed}
               >
                 {/* {console.log(this.state)} */}
                 <Form.Item
+                  style={{ float: 'left', width: '50%' }}
                   name="title"
                   rules={[
                     {
@@ -469,8 +508,8 @@ export default class BlogEdit extends Component {
                     },
                   ]}
                 >
-                  <Input 
-                    style={{width: "100%"}}
+                  <Input
+                    style={{ }}
                     placeholder="请输入标题"
                     onChange={  // 输入框每次更新都执行此方法（保证标题可以正确修改）
                       (event) => {
@@ -480,7 +519,22 @@ export default class BlogEdit extends Component {
                   />
                 </Form.Item>
 
-                <Form.Item>
+                <Form.Item 
+                  style={{ width: '50%', textAlign: 'center' }}
+                >
+                  &nbsp;
+                  <Button shape="round" onClick={this.showDescriptionModal}>
+                    编辑摘要
+                  </Button> &nbsp;
+                  <Button shape="round" onClick={this.showCategoryModal}>
+                    编辑分类
+                  </Button> &nbsp;
+                  <Button shape="round" onClick={this.showTagModal}>
+                    编辑标签
+                  </Button> &emsp;
+                  <font> &nbsp; 当前博客状态为：
+                    {( this.state.blog!==null && this.state.blog.status===1  ? "公开发布" : "未发布草稿" )}
+                  </font> &emsp;
                   <Button type="primary" htmlType="submit" shape="round" onClick={() => this.saveBlog(this.state.blog.status)}>
                     保存
                   </Button> &nbsp;
@@ -490,18 +544,6 @@ export default class BlogEdit extends Component {
                   <Button type="primary" htmlType="submit" shape="round" onClick={() => this.saveBlog(BLOGSTATUS.Public)}>
                     保存并公开发布
                   </Button>
-                  <font> &nbsp; 当前博客状态为：
-                    {( this.state.blog!==null && this.state.blog.status===1  ? "公开发布" : "未发布草稿" )}
-                  </font> &nbsp;
-                  <Button shape="round" onClick={this.showDescriptionModal}>
-                    编辑摘要
-                  </Button> &nbsp;
-                  <Button shape="round" onClick={this.showCategoryModal}>
-                    编辑分类
-                  </Button> &nbsp;
-                  <Button shape="round" onClick={this.showTagModal}>
-                    编辑标签
-                  </Button> &nbsp;
                 </Form.Item>
 
                 <Form.Item>

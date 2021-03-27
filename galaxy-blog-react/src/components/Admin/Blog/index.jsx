@@ -45,11 +45,16 @@ export default class Blog extends Component {
           });
         },
         err => {
-          // 弹窗提示
-          message.error(err.response.data.message);
-          // token失效了退出登录
-          if (err.response.data.message==="token已失效，请重新登录") {
-            store.dispatch(delUser())
+          // 后端服务错误
+          if (err.response===undefined) {
+            message.error('连接服务器失败，请稍候重试');
+          } else {
+            // 弹窗提示
+            message.error(err.response.data.message);
+            // token失效了退出登录
+            if (err.response.data.message==="token已失效，请重新登录") {
+              store.dispatch(delUser())
+            }
           }
         });
   }
@@ -74,7 +79,12 @@ export default class Blog extends Component {
         message.success("删除成功！");
       },
       err => {
-        message.error("无权限删除！");
+        // 后端服务错误
+        if (err.response===undefined) {
+          message.error('连接服务器失败，请稍候重试');
+        } else {
+          message.error("无权限删除！");
+        }
       }
     ).catch(
       err => {
@@ -112,7 +122,7 @@ export default class Blog extends Component {
               type="primary"
               onClick={this.newBlog}
               >
-                新建博客
+                新建文章
             </Button>
           }
           dataSource={list}  // 列表数据源
@@ -120,16 +130,16 @@ export default class Blog extends Component {
             <div>
               <List.Item
                 actions={[
-                  <Link onClick={() => this.blogEdit(item.id)}>编辑或修改文章状态</Link>,
+                  <Link onClick={() => this.blogEdit(item.id)}>编辑文章</Link>,
                   // 向路由组件传递params参数(携带参数)
-                  <Link onClick={() => this.gotoBolgDetail(item.id)}>浏览</Link>, 
+                  <Link onClick={() => this.gotoBolgDetail(item.id)}>浏览文章</Link>, 
                   <Popconfirm
                     title="你确定要删除本博文吗"
                     onConfirm={() => this.deleteBlog(item)}
                     okText="确认"
                     cancelText="取消"
                   >
-                    <Link>删除</Link>
+                    <Link>删除文章</Link>
                   </Popconfirm>,
                   <div>创建时间：{item.createTime.replace("T", " ")}</div>,
                   <div>更新时间：{item.updateTime.replace("T", " ")}</div>]}

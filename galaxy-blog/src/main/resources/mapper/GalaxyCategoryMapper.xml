@@ -3,74 +3,76 @@
 <mapper namespace="pers.artlex.mapper.GalaxyCategoryMapper">
 
     <select id="getCategoryStatisticsAll" resultType="java.util.Map">
-        select c1.content as content, COALESCE(COUNT(DISTINCT c2.blog_id) ,0) as total
-        from galaxy_category as c1
-             left join
-                 (select c.content as content, b.id as blog_id
-                  from galaxy_blog as b, galaxy_category as c
-                  where b.category_id=c.id and b.user_id=c.user_id) as c2
-             on c1.content=c2.content
+        SELECT c1.content AS content, COALESCE(COUNT(DISTINCT c2.blog_id) ,0) AS total
+        FROM galaxy_category AS c1
+             LEFT JOIN
+                 (SELECT c.content AS content, b.id AS blog_id
+                  FROM galaxy_blog AS b, galaxy_category AS c
+                  WHERE b.category_id=c.id and b.user_id=c.user_id) AS c2
+             ON c1.content=c2.content
         GROUP BY c1.content
-        ORDER BY COALESCE(COUNT(DISTINCT c2.blog_id) ,0) DESC, length(c1.content)
+        ORDER BY COALESCE(COUNT(DISTINCT c2.blog_id) ,0) DESC, LENGTH(c1.content)
     </select>
     <select id="getCategoryStatisticsPublic" resultType="java.util.Map">
-        select c1.content as content, COALESCE(COUNT(DISTINCT c2.blog_id) ,0) as total
-        from galaxy_category as c1
-                     left join
-                     (select c.content as content, b.id as blog_id
-                      from galaxy_blog as b, galaxy_category as c
-                      where b.category_id=c.id and b.user_id=c.user_id and b.status=1) as c2
-                             on c1.content=c2.content
-        where c1.status=1
+        SELECT
+          c1.content AS content,
+          COALESCE(COUNT(DISTINCT c2.blog_id) ,0) AS total
+        FROM galaxy_category AS c1
+          LEFT JOIN
+            (SELECT c.content AS content, b.id AS blog_id
+            FROM galaxy_blog AS b, galaxy_category AS c
+            WHERE b.category_id=c.id and b.user_id=c.user_id and b.status=1) AS c2
+          ON c1.content=c2.content
+        WHERE c1.status=1
         GROUP BY c1.content
-        ORDER BY COALESCE(COUNT(DISTINCT c2.blog_id) ,0) DESC, length(c1.content)
+        ORDER BY COALESCE(COUNT(DISTINCT c2.blog_id) ,0) DESC, LENGTH(c1.content)
     </select>
     <select id="getCategoryStatisticsMyself"  resultType="java.util.Map">
-        select c1.content as content, COALESCE(COUNT(DISTINCT c2.blog_id) ,0) as total
-        from galaxy_category as c1
-                     left join
-                     (select c.content as content, b.id as blog_id
-                      from galaxy_blog as b, galaxy_category as c
-                      where b.category_id=c.id and b.user_id=c.user_id and b.status=1 and b.user_id=#{userId}) as c2
-                             on c1.content=c2.content
-        where c1.user_id=#{userId}
+        SELECT c1.content AS content, COALESCE(COUNT(DISTINCT c2.blog_id) ,0) AS total
+        FROM galaxy_category AS c1
+                     LEFT JOIN
+                     (SELECT c.content AS content, b.id AS blog_id
+                      FROM galaxy_blog AS b, galaxy_category AS c
+                      WHERE b.category_id=c.id and b.user_id=c.user_id and b.status=1 and b.user_id=#{userId}) AS c2
+                             ON c1.content=c2.content
+        WHERE c1.user_id=#{userId}
         GROUP BY c1.content
-        ORDER BY COALESCE(COUNT(DISTINCT c2.blog_id) ,0) DESC, length(c1.content)
+        ORDER BY COALESCE(COUNT(DISTINCT c2.blog_id) ,0) DESC, LENGTH(c1.content)
     </select>
 
     <select id="getCategoryLevelListAll"  resultType="java.util.Map">
-        select
+        SELECT
                 c.`id`,
-                c.`user_id` as `userId`,
+                c.`user_id` AS `userId`,
                 c.`content`,
                 c.`description`,
                 c.`status`,
                 c.`level`,
                 c.`pid`,
-                c.`blog_count` as blogCount,
+                c.`blog_count` AS blogCount,
                 c.`sort`,
-                c.`create_time` as createTime,
-                c.`update_time` as updateTime
-        from galaxy_category as c
-        where c.`level`=#{level}
-        order by c.`sort` DESC, c.`blog_count` DESC, length(c.`content`)
+                c.`create_time` AS createTime,
+                c.`update_time` AS updateTime
+        FROM galaxy_category AS c
+        WHERE c.`level`=#{level}
+        order by c.`sort` DESC, c.`blog_count` DESC, LENGTH(c.`content`)
     </select>
     <select id="getCategoryLevelListMyself"  resultType="java.util.Map">
-        select
+        SELECT
                 c.`id`,
-                c.`user_id` as `userId`,
+                c.`user_id` AS `userId`,
                 c.`content`,
                 c.`description`,
                 c.`status`,
                 c.`level`,
                 c.`pid`,
-                c.`blog_count` as blogCount,
+                c.`blog_count` AS blogCount,
                 c.`sort`,
-                c.`create_time` as createTime,
-                c.`update_time` as updateTime
-        from galaxy_category as c
-        where c.`level`=#{level} and c.`user_id`=#{userId}
-        order by c.`sort` DESC, c.`blog_count` DESC, length(c.`content`)
+                c.`create_time` AS createTime,
+                c.`update_time` AS updateTime
+        FROM galaxy_category AS c
+        WHERE c.`level`=#{level} and c.`user_id`=#{userId}
+        order by c.`sort` DESC, c.`blog_count` DESC, LENGTH(c.`content`)
     </select>
 
 

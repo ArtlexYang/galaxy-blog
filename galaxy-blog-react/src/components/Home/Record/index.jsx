@@ -42,8 +42,13 @@ export default class Record extends Component {
           }
         },
         err => {
-          // 弹窗提示
-          message.error(err.response.data.message);
+          // 后端服务错误
+          if (err.response===undefined) {
+            message.error('连接服务器失败，请稍候重试');
+          } else {
+            // 弹窗提示
+            message.error(err.response.data.message);
+          }
         });
   }
 
@@ -64,8 +69,13 @@ export default class Record extends Component {
           }
         },
         err => {
-          // 弹窗提示
-          message.error(err.response.data.message);
+          // 后端服务错误
+          if (err.response===undefined) {
+            message.error('连接服务器失败，请稍候重试');
+          } else {
+            // 弹窗提示
+            message.error(err.response.data.message);
+          }
         }
     );
   }
